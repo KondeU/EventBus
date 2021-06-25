@@ -1,0 +1,9 @@
+How to 'diff' the open source:
+
+:: Replace this path to your local repository path.
+set REPO_PATH=D:\GitHub\TiBus\3rd
+
+PATH=%REPO_PATH%\diff\bin;%PATH%
+cd %REPO_PATH%
+
+diff -ruN xxx_old xxx > xxxx.patch
