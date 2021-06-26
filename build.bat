@@ -10,6 +10,8 @@ set BUILD_COMPILE=%4
 
 if "%RUN_MODE%"=="" (set RUN_MODE=man)
 
+if "%RUN_MODE%"=="extract" (call script\extract_open_source_and_patch.bat)
+
 if "%RUN_MODE%"=="msvc"  (call script\build_msvc.bat  %BUILD_TYPE% %BUILD_BITS% %BUILD_COMPILE%)
 if "%RUN_MODE%"=="mingw" (call script\build_mingw.bat %BUILD_TYPE% %BUILD_BITS% %BUILD_COMPILE%)
 

@@ -2,6 +2,9 @@
 :: the terminal, so use rem to comment if run as ci.
 
 cd %~dp0
+call extract_open_source_and_patch.bat
+
+cd %~dp0
 call clean.bat
 mkdir ..\artifact\msvc_x64_debug
 call build_msvc.bat Debug x64 VS2015
