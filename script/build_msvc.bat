@@ -64,6 +64,12 @@ mkdir include
 xcopy %~dp0..\3rd\cereal\include include /E /Y
 cd ..\..\..
 
+mkdir build\dependency\msgpack
+cd build\dependency\msgpack
+mkdir include
+xcopy %~dp0..\3rd\msgpack\include\*.hpp include /E /Y
+cd ..\..\..
+
 :_tag_build_trace_src
 rem ===== build trace <src> =====
 
