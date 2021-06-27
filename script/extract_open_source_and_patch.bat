@@ -10,4 +10,4 @@ cd %OPEN_SOURCE_PATH%\zeromq
 cd %OPEN_SOURCE_PATH%\cppzmq
 %OPEN_SOURCE_PATH%\patch\bin\patch.exe -p1 < %PATCHES_PATH%\0002.patch
 
-cd %OPEN_SOURCE_PATH%
+cd %~dp0..
