@@ -1,56 +1,70 @@
 // FIXME: Temporary test used!
 
-#include <vector>
-#include <memory>
+#include <csignal>
 #include <iostream>
-#include "common/Action.hpp"
+#include "communicate/Communicator.hpp"
+using namespace tibus::communicate;
 
-void func(int i)
+bool g_loop = true;
+
+void SignalHandler(int signum)
 {
-    std::cout << "func " << i << std::endl;
-}
-
-void func1(std::string s)
-{
-    std::cout << "func1 " << s.c_str() << std::endl;
-}
-
-void func2(std::string& s)
-{
-    std::cout << "func2 " << s.c_str() << std::endl;
-}
-
-class Cls {
-public:
-    void funcs(std::string s)
-    {
-        std::cout << "funcs " << s.c_str() << std::endl;
+    if (signum == SIGINT) {
+        g_loop = false;
     }
-};
+}
 
 int main(int argc, char* argv[])
 {
-    Cls cls;
+    signal(SIGINT, SignalHandler);
 
-    std::string name1 = "name1";
-    std::string name2 = "name2";
-    std::string names = "names";
+    auto broker = Communicator::GetReference().Create<Broker>(
+        "tcp://*:6018", "tcp://*:6019", false);
 
-    int v = 12;
+    auto publisher = Communicator::GetReference().Create<Publisher>(
+        "tcp://127.0.0.1:6018", true);
+    auto subscriber = Communicator::GetReference().Create<Subscriber>(
+        "tcp://127.0.0.1:6019");
+    subscriber->Subscribe("");
 
-    std::vector<std::unique_ptr<TiBus::common::ActionExecutor>> actions;
-    //actions.emplace_back(new TiBus::common::Action<int>{ func, 1 });
-    //actions.emplace_back(new TiBus::common::Action<int>{ func, std::move(v) });
-    actions.emplace_back(TiBus::common::MakeAction(func, 1));
-    actions.emplace_back(TiBus::common::MakeAction(func, std::move(v)));
-    actions.emplace_back(TiBus::common::MakeAction([&cls](std::string n) { cls.funcs(n); }, std::move(names)));
-    actions.emplace_back(new TiBus::common::Action<std::string>{ func1, std::move(name1) });
-    actions.emplace_back(new TiBus::common::Action<std::string&>{ func2, name2 });
-    actions.emplace_back(new TiBus::common::Action<>{ []() {std::cout << "Nothing" << std::endl; } });
+    std::function<void(bool)> callback = [](bool) {};
+    std::function<void(const std::string&, const std::string&)> process =
+    [](const std::string& envelop, const std::string& content) {
+        std::cout << ("[subscriber] " + envelop + ", " + content + "\r\n");
+    };
+    subscriber->StartReceive(callback, process);
 
-    for (auto& each : actions) {
-        each->Execute();
+    broker->SetCaptureCallback([](std::vector<std::string> messages) {
+        size_t index = 0;
+        for (auto& each : messages) {
+            std::cout << ("[capture](" + std::to_string(index)
+                + ") " + each + "\r\n");
+            index++;
+        }
+    });
+
+    unsigned int index = 0;
+    while (g_loop) {
+        std::string envelop = "c" + std::to_string(index % 3);
+        std::string content = "CrntIdx is " + std::to_string(index);
+        publisher->Publish(envelop, content);
+        std::cout << ("[publisher] " + envelop + ", " + content + "\r\n");
+        if (index % 10 == 0) {
+            if ((index / 10) % 2) {
+                broker->Pause();
+            } else {
+                broker->Resume();
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        index++;
     }
+
+    broker->Terminate();
+
+    subscriber->StopReceive();
+    subscriber->WaitReceive();
+    subscriber->ResetReceive();
 
     return 0;
 }
