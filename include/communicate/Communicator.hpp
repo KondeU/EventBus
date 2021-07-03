@@ -47,6 +47,10 @@ public:
         return false;
     }
 
+    Communicator() : context(std::thread::hardware_concurrency() / 2)
+    {
+    }
+
     virtual ~Communicator()
     {
         context.shutdown();
