@@ -2,7 +2,7 @@
 
 #include <zmq.hpp>
 
-namespace ti {
+namespace tibus {
 namespace communicate {
 
 class Publisher {
@@ -22,15 +22,15 @@ private:
     {
     }
 
-    bool Init(const std::string& addr)
+    bool Init(const std::string& address, bool proxy = false)
     {
-        // addr: server address string:
-        //       x.x.x.x:x means ip:port
         try {
-            socket.bind("tcp://" + addr);
+            if (!proxy) {
+                socket.bind(address); // Standard publisher
+            } else {
+                socket.connect(address); // Publish to broker
+            }
         } catch (zmq::error_t) {
-            // IP or port is incorrect,
-            // or the port is occupied.
             return false;
         }
         return true;
@@ -39,7 +39,6 @@ private:
     zmq::context_t& context;
     zmq::socket_t socket;
 };
-using PublisherInst = Publisher*;
 
 }
 }

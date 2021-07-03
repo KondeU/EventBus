@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(Common)
 
-file(GLOB_RECURSE Communicate communicate/*)
-file(GLOB_RECURSE Serialize serialize/*)
-file(GLOB_RECURSE Process process/*)
+file(GLOB_RECURSE SRC *.cpp *.h)
+file(GLOB_RECURSE INC ../../include/*.hpp)
 
-add_library(common STATIC ${Communicate} ${Serialize} ${Process})
+source_group(Exports FILES ${INC})
+
+add_library(common STATIC ${SRC} ${INC})
 target_link_libraries(common libzmq)
-
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
-#  target_precompile_headers(common PRIVATE serialize/?)
-endif()

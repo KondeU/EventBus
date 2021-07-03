@@ -1,18 +1,13 @@
 #pragma once
 
+#include <thread>
 #include <zmq_addon.hpp>
 
-namespace ti {
+namespace tibus {
 namespace communicate {
 
 class Subscriber {
 public:
-    int SetTimeout(int ms)
-    {
-        socket.set(zmq::sockopt::rcvtimeo, ms);
-        return socket.get(zmq::sockopt::rcvtimeo);
-    }
-
     void Subscribe(const std::string& envelope)
     {
         socket.set(zmq::sockopt::subscribe, envelope);
@@ -34,7 +29,7 @@ public:
         [this, &callback, &process]() {
             while (subscribes.find(subKey) == subscribes.end()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            } // Spin lock until emplaced
+            } // Spin lock until emplaced.
 
             bool& exit = subscribes.find(subKey)->second.second;
             while (exit) {
@@ -99,16 +94,15 @@ private:
     {
     }
 
-    bool Init(const std::string& addr)
+    bool Init(const std::string& address)
     {
-        // addr: server address string:
-        //       x.x.x.x:x means ip:port
         try {
-            socket.connect("tcp://" + addr);
+            socket.connect(address);
         } catch (zmq::error_t) {
-            // IP or port is incorrect.
             return false;
         }
+        // Subscriber blocks and calls recv_multipart per second.
+        socket.set(zmq::sockopt::rcvtimeo, 1000);
         return true;
     }
 
@@ -118,7 +112,6 @@ private:
     std::unordered_map<std::string, std::pair<std::thread, bool>> subscribes;
     const std::string subKey = "subscribe";
 };
-using SubscriberInst = Subscriber*;
 
 }
 }

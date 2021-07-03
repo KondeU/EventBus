@@ -3,7 +3,7 @@
 #include <zmq.hpp>
 #include "CommunicationCode.hpp"
 
-namespace ti {
+namespace tibus {
 namespace communicate {
 
 class Requester {
@@ -40,15 +40,11 @@ private:
     {
     }
 
-    bool Init(const std::string& addr)
+    bool Init(const std::string& address)
     {
-        // addr: server address string:
-        //      x.x.x.x:x means ip:port
-        // Requester is Req/Rep model's Client.
         try {
-            socket.connect("tcp://" + addr);
+            socket.connect(address);
         } catch (zmq::error_t) {
-            // IP or port is incorrect.
             return false;
         }
         // Set the buffer of the client to 0 in order to
@@ -63,7 +59,6 @@ private:
     zmq::context_t& context;
     zmq::socket_t socket;
 };
-using RequesterInst = Requester*;
 
 }
 }

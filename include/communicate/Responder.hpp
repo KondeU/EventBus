@@ -1,10 +1,10 @@
 #pragma once
 
-#include <unordered_map>
 #include <thread>
+#include <unordered_map>
 #include <zmq.hpp>
 
-namespace ti {
+namespace tibus {
 namespace communicate {
 
 class Responder {
@@ -18,7 +18,7 @@ public:
         responds.emplace(respKey, std::make_pair(std::thread([this, &proc]() {
             while (responds.find(respKey) == responds.end()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
-            } // Spin lock until emplaced
+            } // Spin lock until emplaced.
 
             bool& exit = responds.find(respKey)->second.second;
             while (exit) {
@@ -83,17 +83,11 @@ private:
     {
     }
 
-    bool Init(const std::string& addr)
+    bool Init(const std::string& address)
     {
-        // addr: server address string:
-        //      x.x.x.x:x means ip:port
-        //     using *:port to enable all ip
-        // Responder is Req/Rep model's Server.
         try {
-            socket.bind("tcp://" + addr);
+            socket.bind(address);
         } catch (zmq::error_t) {
-            // IP or port is incorrect,
-            // or the port is occupied.
             return false;
         }
         // Responder blocks and calls recv per second.
@@ -107,7 +101,6 @@ private:
     std::unordered_map<std::string, std::pair<std::thread, bool>> responds;
     const std::string respKey = "respond";
 };
-using ResponderInst = Responder*;
 
 }
 }

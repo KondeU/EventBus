@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ti {
+namespace tibus {
 namespace communicate {
 
 enum class CommunicationCode {

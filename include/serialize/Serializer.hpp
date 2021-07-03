@@ -4,7 +4,7 @@
 #include <cereal/archives/portable_binary.hpp>
 #include "SupportType.hpp" // headers of <cereal/types/*>
 
-namespace ti {
+namespace tibus {
 namespace serializer {
 
 class Serializer {
@@ -20,7 +20,7 @@ protected:
 
 #include "Serializer.hpp"
 
-namespace ti {
+namespace tibus {
 namespace serializer {
 
 class FunctionSerializer : public Serializer {
