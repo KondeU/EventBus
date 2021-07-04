@@ -1,60 +1,38 @@
 #pragma once
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/portable_binary.hpp>
-#include "SupportType.hpp" // headers of <cereal/types/*>
+#include "SerializeProcesser.hpp"
 
 namespace tibus {
-namespace serializer {
+namespace serialize {
 
+template <typename Processor = CerealSerializeProcesser>
+// Use the template Processor type instead of
+// virtual function implementations, because that
+// virtual function cannot implement the scenarios
+// with variable parameters and variable parameter
+// types, and the template is determined at compile
+// time, it also can reduce the runtime cost.
 class Serializer {
-protected:
-    using OutputArchive = cereal::PortableBinaryOutputArchive;
-    using InputArchive = cereal::PortableBinaryInputArchive;
-};
-
-}
-}
-
-#pragma once
-
-#include "Serializer.hpp"
-
-namespace tibus {
-namespace serializer {
-
-class FunctionSerializer : public Serializer {
 public:
     template <class ...Args>
-    void Serialize(std::string& data, const std::string& func, const Args& ...args)
+    inline void Serialize(std::string& data, const Args& ...args)
     {
-        // 1. serialize --> data
-        {
-            OutputArchive archive(ss);
-            archive(func, args...);
-        }
-        // 2. get serialized data from stream
-        data = ss.str();
-        // 3. reset stream
-        ss.str("");
+        processor.Serialize(data, args...);
+        processor.Reset();
     }
 
     template <class ...Args>
-    void Deserialize(const std::string& data, std::string& func, Args& ...args)
+    inline void Deserialize(const std::string& data, Args& ...args)
     {
-        // 1. set serialized data to stream
-        ss.str(data);
-        // 2. data --> deserialize
-        {
-            InputArchive archive(ss);
-            archive(func, args...);
-        }
-        // 3. reset stream
-        ss.str("");
+        processor.Deserialize(data, args...);
+        processor.Reset();
     }
 
 private:
-    std::stringstream ss;
+    static_assert(std::is_base_of<SerializeProcesser, Processor>::value,
+        "Processor must derived from SerializeProcesser!");
+
+    Processor processor;
 };
 
 }

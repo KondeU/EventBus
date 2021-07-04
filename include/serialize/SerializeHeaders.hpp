@@ -1,10 +1,8 @@
 #pragma once
 
-// headers of <cereal/types/*> except boost and C++17 headers:
-// boost header: <cereal/types/boost_variant.hpp>
-// C++17 headers: <cereal/types/optional.hpp>
-//                <cereal/types/variant.hpp>
-////////////////////////////////////////////////////////////
+#include <cereal/cereal.hpp>
+#include <cereal/archives/portable_binary.hpp>
+
 #include <cereal/types/array.hpp>
 #include <cereal/types/atomic.hpp>
 #include <cereal/types/base_class.hpp>
@@ -30,3 +28,12 @@
 #include <cereal/types/valarray.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/concepts/pair_associative_container.hpp>
+#if __cplusplus >= 201703L || _MSVC_LANG >= 201703L
+#include <cereal/types/optional.hpp>
+#include <cereal/types/variant.hpp>
+#endif
+#if BOOST_VERSION
+#include <cereal/types/boost_variant.hpp>
+#endif
+
+#include <msgpack.hpp>
