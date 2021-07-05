@@ -48,7 +48,7 @@ public:
     template <class ...Args>
     void Serialize(std::string& data, const Args& ...args)
     {
-        if (sizeof...(args)) {
+        if (sizeof...(args) > 0) {
             // C++17: if constexpr
             SerializeElement(args...);
         }
@@ -60,7 +60,7 @@ public:
     {
         size_t offset = 0; // Used by DeserializeElement.
         sb.write(data.data(), data.size());
-        if (sizeof...(args)) {
+        if (sizeof...(args) > 0) {
             // C++17: if constexpr
             DeserializeElement(offset, args...);
         }
@@ -75,7 +75,7 @@ private:
     template <class E0, class ...Es>
     inline void SerializeElement(const E0& e0, const Es& ...es)
     {
-        msgpack::pack(sb, e0);
+        SerializeElement(e0);
         SerializeElement(es...);
     }
 
@@ -88,10 +88,7 @@ private:
     template <class E0, class ...Es>
     inline void DeserializeElement(size_t& offset, E0& e0, Es& ...es)
     {
-        
-        auto handle = msgpack::unpack(sb.data(), sb.size(), offset);
-        auto object = handle.get();
-        object.convert(e0);
+        DeserializeElement(offset, e0);
         DeserializeElement(offset, es...);
     }
 
@@ -99,7 +96,7 @@ private:
     inline void DeserializeElement(size_t& offset, E0& e0)
     {
         auto handle = msgpack::unpack(sb.data(), sb.size(), offset);
-        auto object = handle.get();
+        auto& object = handle.get();
         object.convert(e0);
     }
 
