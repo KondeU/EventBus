@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include "BusMailman.hpp"
 #include "common/Action.hpp"
 #include "serialize/Serializer.hpp"
@@ -30,10 +31,14 @@ public:
 
     void Update()
     {
-        for (auto& action : actions) {
+        std::vector<std::unique_ptr<common::ActionExecutor>> posts;
+        if (mutex.try_lock()) {
+            posts.swap(actions);
+            mutex.unlock();
+        }
+        for (auto& action : posts) {
             action->Execute();
         }
-        actions.clear();
     }
 
 protected:
@@ -41,7 +46,25 @@ protected:
     void FuncCallWrapper(std::function<void(Args...)> func, const std::string& data)
     {
         std::tuple<typename std::decay<Args>::type...> args;
-        serializer.Deserialize(data, std::get(args)...); // FIXME
+        ExtractArgs(data, args);
+        // After here is in the lock zone.
+        std::lock_guard<std::mutex> guard(mutex);
+        actions.emplace_back(common::MakeAction(func, std::move(args)));
+    }
+
+    template <typename ArgsTuple>
+    inline void ExtractArgs(const std::string& data, ArgsTuple& extract)
+    {
+        constexpr auto Size = std::tuple_size<
+            typename std::decay<ArgsTuple>::type>::value;
+        ExtractArgsImpl(data, extract, std::make_index_sequence<Size>{});
+    }
+
+    template <typename ArgsTuple, std::size_t ...Index>
+    inline void ExtractArgsImpl(const std::string& data, ArgsTuple& extract,
+        std::index_sequence<Index...>) // `Index` used for extracting params pack
+    {
+        serializer.Deserialize(data, std::get<Index>(extract)...);
     }
 
 private:
@@ -52,6 +75,9 @@ private:
         void(const std::string& /*data*/)>> functions;
 
     std::vector<std::unique_ptr<common::ActionExecutor>> actions;
+    // The `actions` has a multithreading problem. It is executed and then
+    // cleared in Update function, but added in the MailOffice thread.
+    std::mutex mutex;
 
     serialize::Serializer<> serializer;
 };
