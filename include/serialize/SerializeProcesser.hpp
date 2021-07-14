@@ -21,6 +21,12 @@ public:
         data = ss.str();
     }
 
+    template <>
+    void Serialize(std::string& data)
+    {
+        data.clear();
+    }
+
     template <class ...Args>
     void Deserialize(const std::string& data, Args& ...args)
     {
@@ -29,6 +35,12 @@ public:
             InputArchive archive(ss);
             archive(args...);
         }
+    }
+
+    template <>
+    void Deserialize(const std::string& data)
+    {
+        (void)data;
     }
 
     void Reset()
@@ -48,22 +60,28 @@ public:
     template <class ...Args>
     void Serialize(std::string& data, const Args& ...args)
     {
-        if (sizeof...(args) > 0) {
-            // C++17: if constexpr
-            SerializeElement(args...);
-        }
+        SerializeElement(args...);
         data = data.replace(data.begin(), data.end(), sb.data(), sb.size());
+    }
+
+    template <>
+    void Serialize(std::string& data)
+    {
+        data.clear();
     }
 
     template <class ...Args>
     void Deserialize(const std::string& data, Args& ...args)
     {
-        size_t offset = 0; // Used by DeserializeElement.
+        size_t offset = 0;
         sb.write(data.data(), data.size());
-        if (sizeof...(args) > 0) {
-            // C++17: if constexpr
-            DeserializeElement(offset, args...);
-        }
+        DeserializeElement(offset, args...);
+    }
+
+    template <>
+    void Deserialize(const std::string& data)
+    {
+        (void)data;
     }
 
     void Reset()
