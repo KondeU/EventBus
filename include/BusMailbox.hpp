@@ -8,6 +8,7 @@
 namespace tibus {
 
 enum class BusPolicy {
+    Invalid = -1,
     InnerBus = 0, // In-process bus
     LocalBus = 1, // Local-host inter-process bus
     HostsBus = 2, // Cross-host inter-process bus
@@ -64,22 +65,29 @@ protected:
     inline void ExtractArgsImpl(const std::string& data, ArgsTuple& extract,
         std::index_sequence<Index...>) // `Index` used for extracting params pack
     {
+        (void)extract; // Avoid the compilation warning if params count is zero.
         serializer.Deserialize(data, std::get<Index>(extract)...);
     }
 
 private:
-    BusPolicy policy;
+    BusPolicy policy = BusPolicy::Invalid;
 
     std::string topic;
-    std::unordered_map<std::string, std::function<
-        void(const std::string& /*data*/)>> functions;
+    std::unordered_map<std::string,
+        std::function<void(const std::string&)>> functions;
 
     std::vector<std::unique_ptr<common::ActionExecutor>> actions;
     // The `actions` has a multithreading problem. It is executed and then
     // cleared in Update function, but added in the MailOffice thread.
     std::mutex mutex;
 
+    #if defined SERIALIZE_FORCE_USE_CEREAL
+    serialize::Serializer<serialize::CerealSerializeProcesser> serializer;
+    #elif defined SERIALIZE_FORCE_USE_MSGPACK
+    serialize::Serializer<serialize::MsgpackSerializeProcesser> serializer;
+    #else
     serialize::Serializer<> serializer;
+    #endif
 };
 
 }
