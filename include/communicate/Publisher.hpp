@@ -16,13 +16,26 @@ public:
 
     void Publish(const std::string& envelope, const std::vector<std::string>& contents)
     {
-        size_t sendMore = contents.size();
+        size_t more = contents.size();
         // envelope value must be a pure string.
-        socket.send(zmq::buffer(envelope), (sendMore > 0) ?
+        socket.send(zmq::buffer(envelope), (more > 0) ?
             zmq::send_flags::sndmore : zmq::send_flags::none);
-        for (size_t n = 0; n < sendMore; n++) {
+        for (size_t n = 0; n < more; n++) {
             socket.send(zmq::buffer(contents[n], contents[n].size()),
-                (n < sendMore - 1) ? zmq::send_flags::sndmore : zmq::send_flags::none);
+                (n < more - 1) ? zmq::send_flags::sndmore : zmq::send_flags::none);
+        }
+    }
+
+    void Publish(const std::vector<std::string>& envelopeAndContentsPack)
+    {
+        // pls: make sure envelopeAndContentsPack[0] is a pure string.
+        const std::vector<std::string>& pack = envelopeAndContentsPack;
+        if (pack.size() > 0) {
+            size_t more = pack.size();
+            for (size_t n = 0; n < more; n++) {
+                socket.send(zmq::buffer(pack[n], pack[n].size()), (n < more - 1) ?
+                    zmq::send_flags::sndmore : zmq::send_flags::none);
+            }
         }
     }
 

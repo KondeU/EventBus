@@ -48,7 +48,7 @@ public:
     }
 
     void SetCaptureCallback(const std::function<
-        void(std::vector<std::string>&)>& callback)
+        void(const std::vector<std::string>&)>& callback)
     {
         captureCallback = callback;
     }

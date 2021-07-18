@@ -19,7 +19,7 @@ public:
     }
 
     bool StartReceive(const std::function<void(bool)>& callback, // bool: receive successfully?
-        const std::function<void(const std::string&, const std::vector<std::string>)>& process)
+        const std::function<void(const std::string&, const std::vector<std::string>&)>& process)
     {
         if (subscribes.find(subKey) != subscribes.end()) {
             return false;
