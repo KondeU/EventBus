@@ -7,7 +7,7 @@
 
 namespace tibus {
 
-enum class BusPolicy {
+enum class BusPolicy : int {
     Invalid = -1,
     InnerBus = 0, // In-process bus
     LocalBus = 1, // Local-host inter-process bus
@@ -17,7 +17,8 @@ enum class BusPolicy {
 
 class BusMailbox : public BusMailman {
 public:
-    void BindTopic(const std::string& topicName, BusPolicy busPolicy)
+    void BindTopic(const std::string& topicName,
+        BusPolicy busPolicy = BusPolicy::InnerBus)
     {
         topic = topicName;
         policy = busPolicy;
@@ -34,7 +35,7 @@ public:
     {
         std::vector<std::unique_ptr<common::ActionExecutor>> posts;
         if (mutex.try_lock()) {
-            posts.swap(actions);
+            posts.swap(actions); // Swap in the lock zone.
             mutex.unlock();
         }
         for (auto& action : posts) {
