@@ -10,14 +10,12 @@ include_directories(../include
   ../build/dependency/msgpack/include
   ../build/dependency/zeromq/zeromq/include
   ../build/dependency/zeromq/cppzmq/include
-  common
 )
 
 link_directories(
   ../build/dependency/zeromq/zeromq/lib
 )
 
-add_subdirectory(common)
-add_subdirectory(topicer)
-add_subdirectory(launcher)
-add_subdirectory(router)
+add_subdirectory(local_broker)
+add_subdirectory(hosts_broker)
+add_subdirectory(config_center)
