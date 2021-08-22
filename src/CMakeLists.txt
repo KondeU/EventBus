@@ -16,6 +16,8 @@ link_directories(
   ../build/dependency/zeromq/zeromq/lib
 )
 
+file(GLOB_RECURSE INC ../include/*)
+
 add_subdirectory(local_broker)
 add_subdirectory(hosts_broker)
 add_subdirectory(config_center)

@@ -891,7 +891,7 @@
                 <mxCell id="DF5XYA8F5fw7Ik8dycyA-1" value="BusGroup.h" style="swimlane;fontSize=12;" parent="1" vertex="1">
                     <mxGeometry x="-700" y="40" width="1060" height="860" as="geometry"/>
                 </mxCell>
-                <mxCell id="DF5XYA8F5fw7Ik8dycyA-10" value="class BusGroupEx" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=12;fillColor=#FFCCE6;" parent="DF5XYA8F5fw7Ik8dycyA-1" vertex="1">
+                <mxCell id="DF5XYA8F5fw7Ik8dycyA-10" value="class BusGroupEx : public BusGroup" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontSize=12;fillColor=#FFCCE6;" parent="DF5XYA8F5fw7Ik8dycyA-1" vertex="1">
                     <mxGeometry x="20" y="240" width="500" height="546" as="geometry"/>
                 </mxCell>
                 <mxCell id="DF5XYA8F5fw7Ik8dycyA-11" value="- functions: std::unordered_map&lt;std::string, std::pair&lt;BusTraitBase*,&#10;std::unordered_map&lt;std::string, std::function&lt;void(const std::string&amp;)&gt;&gt;&gt;&gt;&#10;// HMAP&lt;BusName, PAIR&lt;BusTraitBasePtr, HMAP&lt;FunctionName, FunctionWrapper&gt;&gt;&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-10" vertex="1">
@@ -1074,10 +1074,10 @@
                 <mxCell id="DF5XYA8F5fw7Ik8dycyA-40" value="template &lt;typename Event&gt;&#10;class BusHandler : public Event" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#CCFFE6;" parent="DF5XYA8F5fw7Ik8dycyA-36" vertex="1">
                     <mxGeometry x="20" y="40" width="260" height="202" as="geometry"/>
                 </mxCell>
-                <mxCell id="yo_Z0b2PhOdrxWx3Qo4I-2" value="- bool: isConnected" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
+                <mxCell id="yo_Z0b2PhOdrxWx3Qo4I-2" value="-isConnected: bool" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
                     <mxGeometry y="40" width="260" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="GVKSOMXuW08xyk4WZvjx-1" value="- void*: cachedActor" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
+                <mxCell id="GVKSOMXuW08xyk4WZvjx-1" value="-cachedActor: void*" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
                     <mxGeometry y="66" width="260" height="26" as="geometry"/>
                 </mxCell>
                 <mxCell id="DF5XYA8F5fw7Ik8dycyA-42" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
@@ -1086,10 +1086,10 @@
                 <mxCell id="yo_Z0b2PhOdrxWx3Qo4I-1" value="+ ~BusHandler() // RAII保证Disconnect不遗漏" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
                     <mxGeometry y="100" width="260" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="DF5XYA8F5fw7Ik8dycyA-43" value="# template &lt;Actor&gt;&#10;inline bool BusConnect(const Actor* actor)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
+                <mxCell id="DF5XYA8F5fw7Ik8dycyA-43" value="# template &lt;typename Actor&gt;&#10;inline bool BusConnect(const Actor* actor)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
                     <mxGeometry y="126" width="260" height="38" as="geometry"/>
                 </mxCell>
-                <mxCell id="DF5XYA8F5fw7Ik8dycyA-41" value="# template &lt;Actor&gt;&#10;inline bool BusDisconnect(const Actor* actor)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
+                <mxCell id="DF5XYA8F5fw7Ik8dycyA-41" value="# template &lt;typename Actor&gt;&#10;inline bool BusDisconnect(const Actor* actor)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="DF5XYA8F5fw7Ik8dycyA-40" vertex="1">
                     <mxGeometry y="164" width="260" height="38" as="geometry"/>
                 </mxCell>
                 <mxCell id="qLlyXuGzp74t2leTpGKH-1" value="BusActor.h" style="swimlane;fontSize=12;" parent="1" vertex="1">
