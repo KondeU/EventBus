@@ -16,7 +16,7 @@ public:
 
 protected:
     template <typename Actor>
-    inline bool BusConnect(const Actor* actor)
+    inline bool BusConnect(Actor* actor)
     {
         if (cached != nullptr) {
             return false;
@@ -35,7 +35,7 @@ protected:
     }
 
     template <typename Actor>
-    inline bool BusDisconnect(const Actor* actor)
+    inline bool BusDisconnect(Actor* actor)
     {
         if (cached == nullptr) {
             return false;
