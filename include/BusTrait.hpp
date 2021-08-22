@@ -1,43 +1,44 @@
 #pragma once
 
 #include "BusManager.hpp"
+#include "BusHandler.hpp"
 
 namespace tibus {
 
 template <typename Bus, typename Event, typename Group = InProcessBusGroup>
 class BusTrait : public BusTraitBase, public common::Singleton<Bus> {
 public:
-    template <typename Actor, typename Return, class Args...>
+    template <typename Actor, typename Return, class ...Args>
     Return EventNow(const Actor& actor, Return(Event::* func)(Args...), const Args& ...args) const
     {
         // TODO
     }
 
-    template <typename Actor, class Args...>
+    template <typename Actor, class ...Args>
     void EventNow(const Actor& actor, void(Event::* func)(Args...), const Args& ...args) const
     {
         // TODO
     }
 
-    template <class Args...>
+    template <class ...Args>
     void EventNow(void(Event::* func)(Args...), const Args& ...args) const
     {
         // TODO
     }
 
-    template <typename Actor, class Args...>
+    template <typename Actor, class ...Args>
     void EventQueue(const Actor& actor, void(Event::* func)(Args...), const Args& ...args) const
     {
         // TODO
     }
 
-    template <class Args...>
+    template <class ...Args>
     void EventQueue(const std::string& name, void(Event::* func)(Args...), const Args& ...args) const
     {
         // TODO
     }
 
-    template <class Args...>
+    template <class ...Args>
     void EventQueue(void(Event::* func)(Args...), const Args& ...args) const
     {
         // TODO

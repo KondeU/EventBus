@@ -19,7 +19,7 @@ public:
         }
     }
 
-    void RegistBus(const BusTraitBase& bus)
+    void RegistBus(BusTraitBase& bus)
     {
         buses.emplace_back(&bus);
     }

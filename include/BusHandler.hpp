@@ -10,7 +10,7 @@ public:
     ~BusHandler()
     {
         if (cached != nullptr) {
-            BusDisconnect(cached);
+            //BusDisconnect(cached);
         }
     }
 
