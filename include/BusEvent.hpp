@@ -9,6 +9,7 @@ protected:
 
     inline Bus& GetRelatedBus() const
     {
+        return Bus::GetReference();
     }
 };
 

@@ -1,5 +1,10 @@
 #pragma once
 
+#include <mutex>
+#include "serialize/Serializer.hpp"
+#include "communicate/Communicator.hpp"
+#include "BusTraitBase.hpp"
+
 namespace tibus {
 
 class BusGroup {
@@ -46,8 +51,8 @@ private:
         std::string, std::function<void(const std::string&)>>>> functions;
     std::unordered_map<BusTraitBase*, std::string> buses;
 
-    serialize::Serializer sin;
-    serialize::Serializer sout;
+    //serialize::Serializer<> sin;
+    //serialize::Serializer<> sout;
 
     communicate::Subscriber* subscriber = nullptr;
     communicate::Publisher* publisher = nullptr;
@@ -66,8 +71,7 @@ protected:
     }
 };
 
-class InProcessBusGroup : public BusGroup
-    , public Singleton<InProcessBusGroup> {
+class InProcessBusGroup : public BusGroup, public common::Singleton<InProcessBusGroup> {
 public:
     void Update() override
     {
@@ -80,8 +84,7 @@ public:
     inline void BindFunction(const BusTraitBase& bus, std::function<void(Args...)> func) {}
 };
 
-class LocalHostBusGroup : public BusGroupEx
-    , public Singleton<LocalHostBusGroup> {
+class LocalHostBusGroup : public BusGroupEx, public common::Singleton<LocalHostBusGroup> {
 public:
     bool Start(int subPort, int pubPort)
     {
@@ -96,8 +99,7 @@ private:
     const std::string ipOfLocalBroker = "127.0.0.1";
 };
 
-class MultiHostBusGroup : public BusGroupEx
-    , public Singleton<MultiHostBusGroup> {
+class MultiHostBusGroup : public BusGroupEx, public common::Singleton<MultiHostBusGroup> {
 public:
     bool Start(const std::string& brokerIp, int subPort, int pubPort)
     {
@@ -109,7 +111,7 @@ public:
 
 private:
     int portOfSub, portOfPub;
-    const std::string ipOfHostsBroker;
+    std::string ipOfHostsBroker;
 };
 
 }
