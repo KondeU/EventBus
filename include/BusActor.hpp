@@ -24,7 +24,7 @@ protected:
     template <typename Bus, typename Event, class ...Args>
     inline void EventNow(void(Event::* func)(Args...), const Args& ...args) const
     {
-        Bus::GetReference().EventNow(func, args...)
+        Bus::GetReference().EventNow(func, args...);
     }
 
     template <typename Bus, typename Event, typename Actor, class ...Args>

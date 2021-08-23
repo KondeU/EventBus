@@ -1,7 +1,5 @@
 #pragma once
 
-#include <unordered_map>
-
 namespace tibus {
 
 template <typename Event>
@@ -10,7 +8,7 @@ public:
     ~BusHandler()
     {
         if (cached != nullptr) {
-            //BusDisconnect(cached);
+            BusDisconnect(static_cast<BusActorBase*>(cached));
         }
     }
 
