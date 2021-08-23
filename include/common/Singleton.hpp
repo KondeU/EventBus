@@ -13,17 +13,11 @@ class Singleton {
 public:
     static T& GetReference()
     {
-        static T instance{};
         return instance;
     }
 
-    T& operator()() const
-    {
-        return reference;
-    }
-
 private:
-    static T& reference;
+    static T instance;
 };
 
 // If there is a class B that inherits class A,
@@ -34,7 +28,7 @@ private:
 // one is in the B instance. So the singleton
 // class is Singleton<A>, not A.
 template <typename T, int N>
-T& Singleton<T, N>::reference = Singleton<T, N>::GetReference();
+T Singleton<T, N>::instance;
 
 }
 }
