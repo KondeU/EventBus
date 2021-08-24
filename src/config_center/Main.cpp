@@ -1,13 +1,18 @@
 #include <csignal>
 #include <iostream>
-#include "TiBus.hpp"
 
-bool g_loop = true;
+// All TiBus framework and utils are included in this header file.
+#include "utils/ApplicationFramework.h"
+
+class Application : public ApplicationFramework
+    , public tibus::common::Singleton<Application> {
+public:
+};
 
 void SignalHandler(int signum)
 {
     if (signum == SIGINT) {
-        g_loop = false;
+        Application::GetReference().Exit();
     }
 }
 
@@ -34,16 +39,9 @@ public:
 
 int main(int argc, char* argv[])
 {
+    MyModule myModule; // for test
+
     signal(SIGINT, SignalHandler);
-
-    tibus::BusManager::GetReference().Start();
-
-    MyModule myModule;
-
-    while (g_loop) {
-        TickBus::GetReference().EventQueue(&TickBusEvent::OnTick);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-
+    Application::GetReference().Run();
     return 0;
 }
