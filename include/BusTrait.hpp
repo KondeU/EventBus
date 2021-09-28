@@ -23,7 +23,9 @@ public:
     template <class ...Args>
     void EventNow(void(Event::* func)(Args...), const Args& ...args) const
     {
-        // TODO
+        for (const auto& handler : handlers) {
+            (handler.second->*func)(args...);
+        }
     }
 
     template <typename Actor, class ...Args>
@@ -58,13 +60,18 @@ protected:
     template <class ...Args>
     void DefineFunction(const std::string& name, void(Event::* func)(Args...)) const
     {
-        // TODO
+        auto proxy = [this, func](Args ...args) {
+            for (const auto& handler : handlers) {
+                (handler.second->*func)(args...);
+            }
+        };
+        Group::GetReference().BindFunction(name, std::function<void(Args...)>(proxy));
     }
 
 private:
     friend class BusHandler<Event>;
-    std::unordered_map<void*, Event*> handlers;
-    std::unordered_map<std::string, Event*> mapping; // TODO?
+    std::unordered_map<BusActorBase*, Event*> handlers;
+    std::unordered_map<std::string, Event*> namedHandlers;
 };
 
 }

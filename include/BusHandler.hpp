@@ -8,13 +8,12 @@ public:
     ~BusHandler()
     {
         if (cached != nullptr) {
-            BusDisconnect(static_cast<BusActorBase*>(cached));
+            BusDisconnect(cached);
         }
     }
 
 protected:
-    template <typename Actor>
-    inline bool BusConnect(Actor* actor)
+    inline bool BusConnect(BusActorBase* actor)
     {
         if (cached != nullptr) {
             return false;
@@ -26,14 +25,20 @@ protected:
         if (!(GetRelatedBus().handlers.emplace(actor, this)).second) {
             return false;
         }
-        // TODO
+
+        if (actor.UniqueName() != "") {
+            if (!(GetRelatedBus().namedHandlers.emplace(
+                actor->UniqueName(), this)).second) {
+                GetRelatedBus().handlers.erase(actor);
+                return false;
+            }
+        }
 
         cached = actor;
         return true;
     }
 
-    template <typename Actor>
-    inline bool BusDisconnect(Actor* actor)
+    inline bool BusDisconnect(BusActorBase* actor)
     {
         if (cached == nullptr) {
             return false;
@@ -45,14 +50,19 @@ protected:
         if (GetRelatedBus().handlers.erase(actor) <= 0) {
             return false;
         }
-        // TODO
+
+        if (actor.UniqueName() != "") {
+            if (GetRelatedBus().handlers.erase(actor) <= 0) {
+                return false;
+            }
+        }
 
         cached = nullptr;
         return true;
     }
 
 private:
-    void* cached = nullptr; // cached actor
+    BusActorBase* cached = nullptr;
 };
 
 }
