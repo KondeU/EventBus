@@ -8,7 +8,7 @@ function Unzip([string]$sourceFile, [string]$targetFolder)
     $targetFolder = Resolve-Path $targetFolder
     $shellApp = New-Object -ComObject Shell.Application
     $zipFiles = $shellApp.NameSpace($sourceFile).Items()
-    $shellApp.NameSpace($targetFolder).CopyHere($zipFiles)
+    $shellApp.NameSpace($targetFolder).CopyHere($zipFiles, 0x10)
 }
 
 if(!(Test-Path "patch"))
