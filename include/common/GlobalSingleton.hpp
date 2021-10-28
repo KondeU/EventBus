@@ -71,16 +71,16 @@ public:
         return *instance;
     }
 
+    virtual ~GlobalSingleton()
+    {
+        GlobalSingletonRegister::GetReference().Unregist(
+            Singleton<T>::GetReference());
+    }
+
 protected:
     GlobalSingleton()
     {
         instance = GlobalSingletonRegister::GetReference().Regist(
-            Singleton<T>::GetReference());
-    }
-
-    virtual ~GlobalSingleton()
-    {
-        GlobalSingletonRegister::GetReference().Unregist(
             Singleton<T>::GetReference());
     }
 

@@ -13,9 +13,10 @@ public:
         return instance;
     }
 
+    ~Singleton() = default;
+
 protected:
     Singleton() = default;
-    ~Singleton() = default;
 
 private:
     static T instance;
