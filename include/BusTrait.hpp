@@ -6,18 +6,26 @@
 namespace tibus {
 
 template <typename Bus, typename Event, typename Group = InProcessBusGroup>
-class BusTrait : public BusTraitBase, public common::Singleton<Bus> {
+class BusTrait : public BusTraitBase, public common::GlobalSingleton<Bus> {
 public:
     template <typename Actor, typename Return, class ...Args>
     Return EventNow(const Actor& actor, Return(Event::* func)(Args...), const Args& ...args) const
     {
-        // TODO
+        const auto& handler = handlers.find(&actor);
+        if (handler == handlers.end()) {
+            return {}; // User logic error, actor not found!
+        }
+        return (handler.second->*func)(args...);
     }
 
     template <typename Actor, class ...Args>
     void EventNow(const Actor& actor, void(Event::* func)(Args...), const Args& ...args) const
     {
-        // TODO
+        const auto& handler = handlers.find(&actor);
+        if (handler == handlers.end()) {
+            return; // User logic error, actor not found!
+        }
+        (handler.second->*func)(args...);
     }
 
     template <class ...Args>

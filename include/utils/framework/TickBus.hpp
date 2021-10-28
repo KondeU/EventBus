@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../TiBus.hpp"
+#include "TiBus.hpp"
 
 class TickBus;
 

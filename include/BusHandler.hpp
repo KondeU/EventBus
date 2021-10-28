@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BusActorBase.hpp"
+
 namespace tibus {
 
 template <typename Event>
@@ -13,7 +15,7 @@ public:
     }
 
 protected:
-    inline bool BusConnect(BusActorBase* actor)
+    inline bool BusConnect(const BusActorBase& actor)
     {
         if (cached != nullptr) {
             return false;
@@ -38,7 +40,7 @@ protected:
         return true;
     }
 
-    inline bool BusDisconnect(BusActorBase* actor)
+    inline bool BusDisconnect(const BusActorBase& actor)
     {
         if (cached == nullptr) {
             return false;
@@ -62,7 +64,7 @@ protected:
     }
 
 private:
-    BusActorBase* cached = nullptr;
+    const BusActorBase* cached = nullptr;
 };
 
 }

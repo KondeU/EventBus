@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../TiBus.hpp"
+#include "TickBus.hpp"
 
 class ApplicationFramework {
 public:
@@ -10,15 +10,15 @@ public:
         configs["hbip"] = "127.0.0.1"; // Default hosts broker ip
 
         // Default hosts broker configuration
-        configs["hbp1"] = "6040"; // Default hosts broker port 1 (Sub H_B)
-        configs["hbp2"] = "6041"; // Default hosts broker port 2 (Pub H_B)
+        configs["hbp1"] = "6083"; // Default hosts broker port 1 (Sub H_B)
+        configs["hbp2"] = "6084"; // Default hosts broker port 2 (Pub H_B)
 
         // Default local broker configuration
-        configs["lbp1"] = "6042"; // Default local broker port 1 (Sub L_B)
-        configs["lbp2"] = "6043"; // Default local broker port 2 (Pub L_B)
+        configs["lbp1"] = "6081"; // Default local broker port 1 (Sub L_B)
+        configs["lbp2"] = "6082"; // Default local broker port 2 (Pub L_B)
 
-        // Default level configuration, Only could be: I_P(hosts broker),
-        configs["level"] = "I_P"; // H_B (hosts broker), L_B(hosts broker)
+        // Default level configuration, Only could be: I_P(inproc broker),
+        configs["level"] = "I_P"; // H_B (hosts broker), L_B(local broker)
     }
 
     void Configure(std::string config)

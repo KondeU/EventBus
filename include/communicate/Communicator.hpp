@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/Singleton.hpp"
+#include "common/GlobalSingleton.hpp"
 #include "Requester.hpp"
 #include "Responder.hpp"
 #include "Subscriber.hpp"
@@ -10,7 +10,7 @@
 namespace tibus {
 namespace communicate {
 
-class Communicator : public common::Singleton<Communicator> {
+class Communicator : public common::GlobalSingleton<Communicator> {
 public:
     template <typename T, class ...Args>
     inline auto Create(const Args& ...args)

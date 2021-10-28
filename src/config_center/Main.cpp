@@ -1,12 +1,10 @@
 #include <csignal>
 #include <iostream>
 
-// All TiBus framework and utils are included in this header file.
-#include "utils/ApplicationFramework.h"
+#include "TiBus.hpp"
 
 class Application : public ApplicationFramework
     , public tibus::common::Singleton<Application> {
-public:
 };
 
 void SignalHandler(int signum)
@@ -17,13 +15,13 @@ void SignalHandler(int signum)
 }
 
 class MyModule : public tibus::BusActor<
-    tibus::BusHandler<TickBusEvent>, tibus::BusHandler<ClockBusEvent>> {
+    tibus::BusHandler<TickBusEvent>/*, tibus::BusHandler<ClockBusEvent>*/> {
 public:
     MyModule()
     {
-        tibus::BusHandler<TickBusEvent>::BusConnect(this);
-        tibus::BusHandler<ClockBusEvent>::BusConnect(this);
-        EventNow<ClockBus>(&ClockBusEvent::OnClock, 1);
+        tibus::BusHandler<TickBusEvent>::BusConnect(*this);
+        //tibus::BusHandler<ClockBusEvent>::BusConnect(this);
+        //EventNow<ClockBus>(&ClockBusEvent::OnClock, 1);
     }
 
     void OnTick() override
@@ -31,10 +29,10 @@ public:
         std::cout << "Tick!" << std::endl;
     }
 
-    void OnClock(int id) override
-    {
-        std::cout << "Clock!" << std::endl;
-    }
+    //void OnClock(int id) override
+    //{
+    //    std::cout << "Clock!" << std::endl;
+    //}
 };
 
 int main(int argc, char* argv[])

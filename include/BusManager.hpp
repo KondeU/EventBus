@@ -4,7 +4,7 @@
 
 namespace tibus {
 
-class BusManager : public common::Singleton<BusManager> {
+class BusManager : public common::GlobalSingleton<BusManager> {
 public:
     enum class BusGroupLevel {
         InProcess,
