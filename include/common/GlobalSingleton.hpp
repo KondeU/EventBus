@@ -8,7 +8,7 @@ namespace common {
 
 class GlobalSingletonRegister : public Singleton<GlobalSingletonRegister> {
 public:
-    // singleton_manager.dll or singleton_manager.so
+    // singleton_manager.dll or libsingleton_manager.so
     const std::string SingletonManagerLibrary = "singleton_manager";
 
     GlobalSingletonRegister()
