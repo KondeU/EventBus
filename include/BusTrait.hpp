@@ -62,7 +62,7 @@ protected:
 
     void DefineBus(const std::string& name) const
     {
-        // TODO
+        Group::GetReference().BindBus(name, *this);
     }
 
     template <class ...Args>
@@ -73,13 +73,14 @@ protected:
                 (handler.second->*func)(args...);
             }
         };
-        Group::GetReference().BindFunction(name, std::function<void(Args...)>(proxy));
+        Group::GetReference().BindFunction(name, *this,
+            std::function<void(Args...)>(proxy));
     }
 
 private:
     friend class BusHandler<Event>;
-    std::unordered_map<BusActorBase*, Event*> handlers;
     std::unordered_map<std::string, Event*> namedHandlers;
+    std::unordered_map<const BusActorBase*, Event*> handlers;
 };
 
 }

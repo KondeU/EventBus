@@ -14,16 +14,22 @@ public:
 
 class BusGroupEx : public BusGroup {
 public:
+    // Use this type to determine the serialization processor: It
+    // could be CerealSerializeProcesser, MsgpackSerializeProcesser
+    // or custom serialization processor.
+    using SerializeProcesser = serialize::CerealSerializeProcesser;
+
     void BindBus(const std::string& name, const BusTraitBase& bus)
     {
         buses[&bus] = name;
+        functions[name].first = &bus;
     }
 
     template <class ...Args>
     void BindFunction(const std::string& name,
         const BusTraitBase& bus, std::function<void(Args...)> func)
     {
-        functions[buses[&bus]].second[name] = std::bind(
+        functions[buses[&bus]].second()[name] = std::bind(
             &BusGroupEx::FuncCallWrapper<Args...>, this,
             func, std::placeholders::_1);
     }
@@ -34,7 +40,8 @@ protected:
     {
         std::tuple<Args...> args;
         ExtractArgs(data, args);
-        ////
+        // Deserialize and extract the parameter package in the background receiving
+        // thread and then package the function and parameters into the `actions`.
         FuncCallWrapperImpl(func, args, std::make_index_sequence<sizeof...(Args)>{});
     }
 
@@ -49,9 +56,8 @@ protected:
     template <typename ArgsTuple>
     inline void ExtractArgs(const std::string& data, ArgsTuple& extract)
     {
-        constexpr auto Size = std::tuple_size<
-            typename std::decay<ArgsTuple>::type>::value;
-        return ExtractArgsImpl(data, extract, std::make_index_sequence<Size>{});
+        return ExtractArgsImpl(data, extract, std::make_index_sequence<
+            std::tuple_size<typename std::decay<ArgsTuple>::type>::value>{});
     }
 
     template <typename ArgsTuple, std::size_t ...Index>
@@ -62,13 +68,30 @@ protected:
     }
 
 private:
-    // HMAP<BusName, PAIR<BusTraitBaseConstPtr, HMAP<FunctionName, FunctionWrapper>>>
-    std::unordered_map<std::string, std::pair<const BusTraitBase*, std::unordered_map<
-        std::string, std::function<void(const std::string&)>>>> functions;
+    // HMAP<BusName, PAIR<BusTraitBaseCPtr, HMAP<FunctionName, FunctionWrapper>>>
+    //std::unordered_map<std::string, std::pair<const BusTraitBase*, std::unordered_map<   --- original source
+    //    std::string, std::function<void(const std::string&)>>>> functions;               --- original source
+    // Avoid the compile warning C4503 when using the MSVC Compiler (VS2015):
+    // - The decorated name was longer than the compiler limit (4096), and was truncated.
+    // - To avoid this warning and the truncation, reduce the number of arguments or name
+    // - length of identifiers used.
+    // see: https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2008/074af4b6(v=vs.90)?redirectedfrom=MSDN
+    struct FunctionHashmap {
+        operator std::unordered_map<std::string, std::function<void(const std::string&)>>& ()
+        {
+            return inBusFunctions;
+        }
+        std::unordered_map<std::string, std::function<void(const std::string&)>>& operator()()
+        {
+            return inBusFunctions;
+        }
+        std::unordered_map<std::string, std::function<void(const std::string&)>> inBusFunctions;
+    };
+    std::unordered_map<std::string, std::pair<const BusTraitBase*, FunctionHashmap>> functions;
     std::unordered_map<const BusTraitBase*, std::string> buses;
 
-    serialize::Serializer<> sin;
-    serialize::Serializer<> sout;
+    serialize::Serializer<SerializeProcesser> sin;
+    serialize::Serializer<SerializeProcesser> sout;
 
     communicate::Subscriber* subscriber = nullptr;
     communicate::Publisher* publisher = nullptr;

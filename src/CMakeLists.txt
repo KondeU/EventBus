@@ -16,6 +16,12 @@ link_directories(
   ../build/dependency/zeromq/zeromq/lib
 )
 
+if(MSVC)
+  link_libraries(libzmq)
+else()
+  link_libraries(zmq)
+endif()
+
 file(GLOB_RECURSE INC ../include/*)
 
 add_subdirectory(local_broker)

@@ -75,13 +75,18 @@ private:
     template <typename T>
     using Container = std::unordered_map<uintptr_t, std::unique_ptr<T>>;
 
-    common::Singleton<Container<Requester>> requesters;
-    common::Singleton<Container<Responder>> responders;
+    class Requesters : public common::Singleton<
+        Container<Requester>> {} requesters;
+    class Responders : public common::Singleton<
+        Container<Responder>> {} responders;
 
-    common::Singleton<Container<Subscriber>> subscribers;
-    common::Singleton<Container<Publisher>> publishers;
+    class Subscribers : public common::Singleton<
+        Container<Subscriber>> {} subscribers;
+    class Publishers : public common::Singleton<
+        Container<Publisher>> {} publishers;
 
-    common::Singleton<Container<Broker>> brokers;
+    class Brokers : public common::Singleton<
+        Container<Broker>> {} brokers;
 };
 
 }

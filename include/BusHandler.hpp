@@ -10,7 +10,7 @@ public:
     ~BusHandler()
     {
         if (cached != nullptr) {
-            BusDisconnect(cached);
+            BusDisconnect(*cached);
         }
     }
 
@@ -20,41 +20,35 @@ protected:
         if (cached != nullptr) {
             return false;
         }
-        if (actor == nullptr) {
-            return false;
-        }
 
-        if (!(GetRelatedBus().handlers.emplace(actor, this)).second) {
+        if (!(GetRelatedBus().handlers.emplace(&actor, this)).second) {
             return false;
         }
 
         if (actor.UniqueName() != "") {
             if (!(GetRelatedBus().namedHandlers.emplace(
-                actor->UniqueName(), this)).second) {
-                GetRelatedBus().handlers.erase(actor);
+                actor.UniqueName(), this)).second) {
+                GetRelatedBus().handlers.erase(&actor);
                 return false;
             }
         }
 
-        cached = actor;
+        cached = &actor;
         return true;
     }
 
     inline bool BusDisconnect(const BusActorBase& actor)
     {
-        if (cached == nullptr) {
-            return false;
-        }
-        if (cached != actor) {
+        if ((cached == nullptr) || (cached != &actor)) {
             return false;
         }
 
-        if (GetRelatedBus().handlers.erase(actor) <= 0) {
+        if (GetRelatedBus().handlers.erase(&actor) <= 0) {
             return false;
         }
 
         if (actor.UniqueName() != "") {
-            if (GetRelatedBus().handlers.erase(actor) <= 0) {
+            if (GetRelatedBus().handlers.erase(&actor) <= 0) {
                 return false;
             }
         }
