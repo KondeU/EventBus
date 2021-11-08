@@ -53,7 +53,9 @@ public:
 
     void ExecuteReceivedEvents() const
     {
-        // TODO
+        InProcessBusGroup::GetReference().Update();
+        LocalHostBusGroup::GetReference().Update();
+        MultiHostBusGroup::GetReference().Update();
     }
 
 private:

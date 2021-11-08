@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include "common/Any.hpp"
 #include "serialize/Serializer.hpp"
 #include "communicate/Communicator.hpp"
 #include "BusTraitBase.hpp"
@@ -26,23 +27,24 @@ public:
     }
 
     template <class ...Args>
-    void BindFunction(const std::string& name,
-        const BusTraitBase& bus, std::function<void(Args...)> func)
+    void BindFunction(const std::string& name, const BusTraitBase& bus,
+        std::function<void(std::string, Args...)> function) // proxy function
     {
         functions[buses[&bus]].second()[name] = std::bind(
             &BusGroupEx::FuncCallWrapper<Args...>, this,
-            func, std::placeholders::_1);
+            std::placeholders::_1, function);
     }
 
 protected:
     template <class ...Args>
-    void FuncCallWrapper(std::function<void(Args...)> func, const std::string& data)
+    void FuncCallWrapper(const std::string& data,
+        std::function<void(std::string, Args...)> func)
     {
-        std::tuple<Args...> args;
-        ExtractArgs(data, args);
+        std::tuple<std::string, Args...> args;
+        ExtractArgs(data, args); // args: handler name(id) + function real arguments
         // Deserialize and extract the parameter package in the background receiving
         // thread and then package the function and parameters into the `actions`.
-        FuncCallWrapperImpl(func, args, std::make_index_sequence<sizeof...(Args)>{});
+        FuncCallWrapperImpl(func, args, std::make_index_sequence<1 + sizeof...(Args)>{});
     }
 
     template <typename Func, typename Args, std::size_t ...Index>
@@ -77,24 +79,30 @@ private:
     // - length of identifiers used.
     // see: https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2008/074af4b6(v=vs.90)?redirectedfrom=MSDN
     struct FunctionHashmap {
-        operator std::unordered_map<std::string, std::function<void(const std::string&)>>& ()
+        using Type = std::unordered_map<std::string,
+            std::function<void(const std::string&)>>;
+
+        operator Type& ()
         {
             return inBusFunctions;
         }
-        std::unordered_map<std::string, std::function<void(const std::string&)>>& operator()()
+
+        Type& operator()()
         {
             return inBusFunctions;
         }
-        std::unordered_map<std::string, std::function<void(const std::string&)>> inBusFunctions;
+
+        Type inBusFunctions;
     };
+
     std::unordered_map<std::string, std::pair<const BusTraitBase*, FunctionHashmap>> functions;
     std::unordered_map<const BusTraitBase*, std::string> buses;
 
     serialize::Serializer<SerializeProcesser> sin;
     serialize::Serializer<SerializeProcesser> sout;
 
-    communicate::Subscriber* subscriber = nullptr;
-    communicate::Publisher* publisher = nullptr;
+    //communicate::Subscriber* subscriber = nullptr;
+    //communicate::Publisher* publisher = nullptr;
 
     std::vector<std::function<void()>> actions;
     std::mutex mutex; // actions' mutex
@@ -102,25 +110,136 @@ private:
 public:
     void Update() override
     {
+        std::vector<std::function<void()>> executes;
+        {
+            std::unique_lock<std::mutex> locker(mutex, std::try_to_lock);
+            if (locker.owns_lock()) {
+                executes.swap(actions);
+            }
+        }
+        for (const auto& execute : executes) {
+            execute();
+        }
     }
 
 protected:
-    void Process(const std::string& envelope, const std::string& content)
+    void Process(const std::string& envelope, const std::vector<std::string>& contents)
     {
+        if (contents.size() != 2) {
+            return; // If run here, it may be an internal error or an external attack!
+        }
+        const std::string& busName = envelope;
+        const std::string& funcName = contents[0];
+        const std::string& idAndArgs = contents[1];
+        // Searching layer by layer and find the executor for execution.
+        const auto& busIter = functions.find(busName);
+        if (busIter == functions.end()) {
+            return;
+        }
+        const auto& funcIter = busIter->second.second().find(funcName);
+        if (funcIter == busIter->second.second().end()) {
+            return;
+        }
+        funcIter->second(idAndArgs);
     }
 };
 
 class InProcessBusGroup : public BusGroup, public common::GlobalSingleton<InProcessBusGroup> {
 public:
-    void Update() override
+    void BindBus(const std::string& name, const BusTraitBase& bus)
     {
+        buses[&bus] = name;
+        functions[name].first = &bus;
     }
 
     template <class ...Args>
-    inline void BindFunction(const std::string& name, std::function<void(Args...)> func) {}
+    void BindFunction(const std::string& name, const BusTraitBase& bus,
+        std::function<void(std::string, Args...)> function) // proxy function
+    {
+        functions[buses[&bus]].second()[name] = std::bind(
+            &InProcessBusGroup::FuncCallWrapper<Args...>,
+            this, std::placeholders::_1, function);
+    }
 
     template <class ...Args>
-    inline void BindFunction(const BusTraitBase& bus, std::function<void(Args...)> func) {}
+    void CallFunction(const BusTraitBase& bus, const std::string& function,
+        const std::string& handler, const Args& ...args)
+    {
+        const auto& iter = buses.find(&bus);
+        if (iter == buses.end()) {
+            return;
+        }
+        CallFunction(iter->second, function, handler, args...);
+    }
+
+    template <class ...Args>
+    void CallFunction(const std::string& bus, const std::string& function,
+        const std::string& handler, const Args& ...args)
+    {
+        const auto& busIter = functions.find(bus);
+        if (busIter == functions.end()) {
+            return;
+        }
+        const auto& funcIter = busIter->second.second().find(function);
+        if (funcIter == busIter->second.second().end()) {
+            return;
+        }
+        funcIter->second(std::tuple<std::string, Args...> { handler, args... });
+    }
+
+protected:
+    template <class ...Args>
+    void FuncCallWrapper(const common::Any& pack,
+        std::function<void(std::string, Args...)> func)
+    {
+        // pack: handler name(id) + function real arguments
+        using Pack = std::tuple<std::string, Args...>;
+        if (pack.IsNull() || !pack.IsType<Pack>()) {
+            return;
+        }
+        FuncCallWrapperImpl(func, pack.AnyCast<Pack>(),
+            std::make_index_sequence<1 + sizeof...(Args)>{});
+    }
+
+    template <typename Func, typename ArgsTuple, std::size_t ...Index>
+    void FuncCallWrapperImpl(const Func& func, const ArgsTuple& args,
+        std::index_sequence<Index...>)
+    {
+        executes.emplace_back(std::bind(func, std::get<Index>(args)...));
+    }
+
+public:
+    void Update() override
+    {
+        for (const auto& execute : executes) {
+            execute();
+        }
+        executes.clear();
+    }
+
+private:
+    // PLS see BusGroupEx::FunctionHashmap
+    struct FunctionHashmap {
+        using Type = std::unordered_map<std::string,
+            std::function<void(const common::Any&)>>;
+
+        operator Type& ()
+        {
+            return inBusFunctions;
+        }
+
+        Type& operator()()
+        {
+            return inBusFunctions;
+        }
+
+        Type inBusFunctions;
+    };
+
+    std::unordered_map<std::string, std::pair<const BusTraitBase*, FunctionHashmap>> functions;
+    std::unordered_map<const BusTraitBase*, std::string> buses;
+
+    std::vector<std::function<void()>> executes;
 };
 
 class LocalHostBusGroup : public BusGroupEx, public common::GlobalSingleton<LocalHostBusGroup> {
