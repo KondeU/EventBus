@@ -35,6 +35,29 @@ public:
             std::placeholders::_1, function);
     }
 
+    template <class ...Args>
+    void CallFunction(const BusTraitBase& bus, const std::string& function,
+        const std::string& handler, const Args& ...args)
+    {
+        // CallFunction in BusGroupEx is a remote function call, and the remote
+        // Bus cannot be found if only the reference of BusTraitBase is provided.
+    }
+
+    template <class ...Args>
+    void CallFunction(const std::string& bus, const std::string& function,
+        const std::string& handler, const Args& ...args)
+    {
+        if (!publisher) {
+            return;
+        }
+        std::vector<std::string> envelopeAndContentsPack;
+        envelopeAndContentsPack.resize(3);
+        envelopeAndContentsPack[0] = bus;
+        envelopeAndContentsPack[1] = function;
+        sin.Serialize(envelopeAndContentsPack[2], handler, args...);
+        publisher->Publish(envelopeAndContentsPack);
+    }
+
 protected:
     template <class ...Args>
     void FuncCallWrapper(const std::string& data,
@@ -58,7 +81,7 @@ protected:
     template <typename ArgsTuple>
     inline void ExtractArgs(const std::string& data, ArgsTuple& extract)
     {
-        return ExtractArgsImpl(data, extract, std::make_index_sequence<
+        ExtractArgsImpl(data, extract, std::make_index_sequence<
             std::tuple_size<typename std::decay<ArgsTuple>::type>::value>{});
     }
 
@@ -101,9 +124,6 @@ private:
     serialize::Serializer<SerializeProcesser> sin;
     serialize::Serializer<SerializeProcesser> sout;
 
-    //communicate::Subscriber* subscriber = nullptr;
-    //communicate::Publisher* publisher = nullptr;
-
     std::vector<std::function<void()>> actions;
     std::mutex mutex; // actions' mutex
 
@@ -142,6 +162,16 @@ protected:
         }
         funcIter->second(idAndArgs);
     }
+
+    // I have wondered for a long time whether subscriber and publisher should be in the
+    // LocalHostBusGroup and MultiHostBusGroup, because BusGroupEx was originally designed
+    // as a layer with serialization and logic processing. The data transmission is expected
+    // to be placed in the LocalHostBusGroup and MultiHostBusGroup.
+    // But I decided to place them here finally, because it can simplify processing and reduce
+    // repeated code. And I think we can move subscriber and publisher to the subclasses
+    // if the logic of the LocalHostBusGroup and MultiHostBusGroup change in the future.
+    communicate::Subscriber* subscriber = nullptr;
+    communicate::Publisher* publisher = nullptr;
 };
 
 class InProcessBusGroup : public BusGroup, public common::GlobalSingleton<InProcessBusGroup> {
@@ -253,7 +283,7 @@ public:
     }
 
 private:
-    int portOfSub, portOfPub;
+    int portOfSub = 0, portOfPub = 0;
     const std::string ipOfLocalBroker = "127.0.0.1";
 };
 
@@ -268,7 +298,7 @@ public:
     }
 
 private:
-    int portOfSub, portOfPub;
+    int portOfSub = 0, portOfPub = 0;
     std::string ipOfHostsBroker;
 };
 

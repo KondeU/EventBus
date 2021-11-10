@@ -6,7 +6,7 @@ namespace tibus {
 
 class BusActorBase {
 public:
-    virtual const std::string UniqueName() const
+    virtual std::string UniqueName() const
     {
         return "";
     }

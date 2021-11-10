@@ -36,22 +36,30 @@ public:
         }
     }
 
-    template <typename Actor, class ...Args>
-    void EventQueue(const Actor& actor, void(Event::* func)(Args...), const Args& ...args) const
-    {
-        // TODO
-    }
-
     template <class ...Args>
-    void EventQueue(const std::string& name, void(Event::* func)(Args...), const Args& ...args) const
+    void EventQueue(const std::string& handler,
+        void(Event::* func)(Args...), const Args& ...args) const
     {
-        // TODO
+        const auto& iter = functionsName.find(reinterpret_cast<uintptr_t*&>(func));
+        if (iter == functionsName.end()) {
+            return;
+        }
+        const auto& funcName = iter->second;
+        // If the user does not call the DefineBus function in the Bus's OnInit function
+        // to give the Bus a unique name, then the busName will be empty. If the bus is
+        // InProcess, we can still find the Bus use the bus pointer.
+        if (busName.empty()) {
+            Group::GetReference().CallFunction(*this, funcName, handler, args...);
+        } else {
+            Group::GetReference().CallFunction(busName, funcName, handler, args...);
+        }
     }
 
     template <class ...Args>
     void EventQueue(void(Event::* func)(Args...), const Args& ...args) const
     {
-        // TODO
+        // If the handler string is empty, the event is a broadcast event :-)
+        EventQueue("", func, args...);
     }
 
 protected:

@@ -89,7 +89,7 @@ private:
 
         std::unique_ptr<AnyObject> Clone() const
         {
-            return std::unique_ptr<SpecificObject<T>>(value);
+            return std::make_unique<SpecificObject<T>>(value);
         }
 
         operator T& ()
