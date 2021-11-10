@@ -24,6 +24,9 @@ public:
     {
         buses[&bus] = name;
         functions[name].first = &bus;
+        if (subscriber) {
+            subscriber->Subscribe(name);
+        }
     }
 
     template <class ...Args>
@@ -163,6 +166,10 @@ protected:
         funcIter->second(idAndArgs);
     }
 
+    void Timeout(bool isTimeout) // FIXME: subscriber receive timeout
+    {
+    }
+
     // I have wondered for a long time whether subscriber and publisher should be in the
     // LocalHostBusGroup and MultiHostBusGroup, because BusGroupEx was originally designed
     // as a layer with serialization and logic processing. The data transmission is expected
@@ -172,6 +179,47 @@ protected:
     // if the logic of the LocalHostBusGroup and MultiHostBusGroup change in the future.
     communicate::Subscriber* subscriber = nullptr;
     communicate::Publisher* publisher = nullptr;
+
+    bool StartCommunication(const std::string& subAddr, const std::string& pubAddr)
+    {
+        if (!subscriber) {
+            subscriber = communicate::Communicator::GetReference()
+                .Create<communicate::Subscriber>(subAddr);
+            if (subscriber) {
+                for (const auto& bus : buses) {
+                    subscriber->Subscribe(bus.second);
+                }
+                subscriber->StartReceive(
+                    std::bind(&BusGroupEx::Timeout, this),
+                    std::bind(&BusGroupEx::Process, this));
+            }
+        }
+        if (!publisher) {
+            publisher = communicate::Communicator::GetReference()
+                .Create<communicate::Publisher>(pubAddr, true);
+        }
+        return (subscriber && publisher);
+    }
+
+    bool StopCommunication()
+    {
+        if (subscriber) {
+            subscriber->StopReceive();
+            subscriber->WaitReceive();
+            subscriber->ResetReceive();
+            if (communicate::Communicator::GetReference()
+                .Destroy(subscriber)) {
+                subscriber = nullptr;
+            }
+        }
+        if (publisher) {
+            if (communicate::Communicator::GetReference()
+                .Destroy(publisher)) {
+                publisher = nullptr;
+            }
+        }
+        return ((!subscriber) && (!publisher));
+    }
 };
 
 class InProcessBusGroup : public BusGroup, public common::GlobalSingleton<InProcessBusGroup> {
