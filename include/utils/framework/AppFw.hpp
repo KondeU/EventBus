@@ -67,7 +67,8 @@ public:
             return false;
         }
 
-        if (!tibus::BusManager::GetReference().Start()) {
+        if (!tibus::BusManager::GetReference().Start(
+            tibus::BusManager::BusGroupLevel::InProcess, {})) {
             OnExit();
             loop = false;
             return false;

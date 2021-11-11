@@ -325,10 +325,16 @@ class LocalHostBusGroup : public BusGroupEx, public common::GlobalSingleton<Loca
 public:
     bool Start(int subPort, int pubPort)
     {
+        portOfSub = subPort;
+        portOfPub = pubPort;
+        std::string subAddr = "tcp://" + ipOfLocalBroker + ":" + std::to_string(portOfSub);
+        std::string pubAddr = "tcp://" + ipOfLocalBroker + ":" + std::to_string(portOfPub);
+        return StartCommunication(subAddr, pubAddr);
     }
 
     bool Stop()
     {
+        return StopCommunication();
     }
 
 private:
@@ -340,10 +346,17 @@ class MultiHostBusGroup : public BusGroupEx, public common::GlobalSingleton<Mult
 public:
     bool Start(const std::string& brokerIp, int subPort, int pubPort)
     {
+        portOfSub = subPort;
+        portOfPub = pubPort;
+        ipOfHostsBroker = brokerIp;
+        std::string subAddr = "tcp://" + ipOfHostsBroker + ":" + std::to_string(portOfSub);
+        std::string pubAddr = "tcp://" + ipOfHostsBroker + ":" + std::to_string(portOfPub);
+        return StartCommunication(subAddr, pubAddr);
     }
 
     bool Stop()
     {
+        return StopCommunication();
     }
 
 private:

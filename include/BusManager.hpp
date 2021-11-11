@@ -12,6 +12,23 @@ public:
         MultiHost
     };
 
+    struct BusInfo {
+        struct LocalBrokerInfo {
+            int sport; // subscriber port
+            int pport; // publisher port
+        };
+        LocalBrokerInfo l;
+
+        struct HostsBrokerInfo {
+            std::string ip;
+            int sport; // subscriber port
+            int pport; // publisher port
+        };
+        // Because the broker has a single point of failure,
+        // I plan to support the multi brokers in the future.
+        std::vector<HostsBrokerInfo> h;
+    };
+
     ~BusManager()
     {
         if (working) {
@@ -24,19 +41,32 @@ public:
         buses.emplace_back(&bus);
     }
 
-    bool Start(BusGroupLevel level = BusGroupLevel::InProcess) const
+    bool Start(BusGroupLevel level, const BusInfo& info) const
     {
         if (working) {
             return false;
         }
 
-        // TODO
+        switch (level) {
+        case BusGroupLevel::MultiHost:
+            if (info.h.size() > 0) {
+                MultiHostBusGroup::GetReference().Start(
+                    info.h[0].ip, info.h[0].sport, info.h[0].pport);
+            }
+            // FALL THROUGH!
+        case BusGroupLevel::LocalHost:
+            LocalHostBusGroup::GetReference().Start(
+                info.l.sport, info.l.pport);
+            // FALL THROUGH!
+        case BusGroupLevel::InProcess:
+            // Nothing to do.
+        }
 
         for (auto bus : buses) {
             bus->OnInit();
         }
 
-        // TODO
+        working = true;
         return true;
     }
 
@@ -46,8 +76,10 @@ public:
             return false;
         }
 
-        // TODO
+        MultiHostBusGroup::GetReference().Stop();
+        LocalHostBusGroup::GetReference().Stop();
 
+        working = false;
         return true;
     }
 
@@ -60,7 +92,7 @@ public:
 
 private:
     std::vector<BusTraitBase*> buses;
-    bool working = false;
+    mutable bool working = false;
 };
 
 }
