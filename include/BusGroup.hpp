@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include "common/Any.hpp"
+#include "common/Binder.hpp"
 #include "serialize/Serializer.hpp"
 #include "communicate/Communicator.hpp"
 #include "BusTraitBase.hpp"
@@ -190,8 +191,8 @@ protected:
                     subscriber->Subscribe(bus.second);
                 }
                 subscriber->StartReceive(
-                    std::bind(&BusGroupEx::Timeout, this),
-                    std::bind(&BusGroupEx::Process, this));
+                    common::Bind(&BusGroupEx::Timeout, this),
+                    common::Bind(&BusGroupEx::Process, this));
             }
         }
         if (!publisher) {

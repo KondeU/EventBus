@@ -41,7 +41,7 @@ public:
         Container<T>& container = // See Container comment.
             common::Singleton<Container<T>>::GetReference();
 
-        if (container.erase(instance) > 0) {
+        if (container.erase(reinterpret_cast<uintptr_t>(instance)) > 0) {
             return true;
         }
         return false;
