@@ -14,15 +14,21 @@ public:
 
     struct BusInfo {
         struct LocalBrokerInfo {
-            int sport; // subscriber port
-            int pport; // publisher port
+            int sport = 0; // subscriber port
+            int pport = 0; // publisher port
+            LocalBrokerInfo(int sp, int pp)
+                : sport(sp), pport(pp) {}
+            LocalBrokerInfo() {}
         };
         LocalBrokerInfo l;
 
         struct HostsBrokerInfo {
             std::string ip;
-            int sport; // subscriber port
-            int pport; // publisher port
+            int sport = 0; // subscriber port
+            int pport = 0; // publisher port
+            HostsBrokerInfo(std::string ip, int sp, int pp)
+                : ip(ip), sport(sp), pport(pp) {}
+            HostsBrokerInfo() {}
         };
         // Because the broker has a single point of failure,
         // I plan to support the multi brokers in the future.
@@ -53,13 +59,13 @@ public:
                 MultiHostBusGroup::GetReference().Start(
                     info.h[0].ip, info.h[0].sport, info.h[0].pport);
             }
-            // FALL THROUGH!
+            // FALL THROUGH
         case BusGroupLevel::LocalHost:
             LocalHostBusGroup::GetReference().Start(
                 info.l.sport, info.l.pport);
-            // FALL THROUGH!
+            // FALL THROUGH
         case BusGroupLevel::InProcess:
-            // Nothing to do.
+            break; // Nothing to do.
         }
 
         for (auto bus : buses) {

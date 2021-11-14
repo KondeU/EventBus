@@ -57,6 +57,11 @@ public:
         return atof(configs[item].c_str());
     }
 
+    std::string GetConfig(const std::string& item)
+    {
+        return configs[item];
+    }
+
     virtual bool Run()
     {
         loop = true;
@@ -67,8 +72,26 @@ public:
             return false;
         }
 
-        if (!tibus::BusManager::GetReference().Start(
-            tibus::BusManager::BusGroupLevel::InProcess, {})) {
+        tibus::BusManager::BusGroupLevel level =
+            tibus::BusManager::BusGroupLevel::InProcess;
+        std::string levelConfig = GetConfig("level");
+        if (levelConfig == "H_B") {
+            level = tibus::BusManager::BusGroupLevel::MultiHost;
+        } else if (levelConfig == "L_B") {
+            level = tibus::BusManager::BusGroupLevel::LocalHost;
+        }
+
+        tibus::BusManager::BusInfo info;
+        info.h.emplace_back(
+            tibus::BusManager::BusInfo::HostsBrokerInfo {
+            GetConfig("hbip"),    // --> info.h[0].ip = GetConfig("hbip")
+            GetConfigInt("hbp1"), // --> info.h[0].sport = GetConfigInt("hbp1")
+            GetConfigInt("hbp2")  // --> info.h[0].pport = GetConfigInt("hbp2")
+        });
+        info.l.sport = GetConfigInt("lbp1");
+        info.l.pport = GetConfigInt("lbp2");
+
+        if (!tibus::BusManager::GetReference().Start(level, info)) {
             OnExit();
             loop = false;
             return false;
