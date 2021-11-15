@@ -18,15 +18,15 @@ public:
         socket.set(zmq::sockopt::unsubscribe, envelope);
     }
 
-    bool StartReceive(const std::function<void(bool)>& callback, // bool: receive successfully?
-        const std::function<void(const std::string&, const std::vector<std::string>&)>& process)
+    bool StartReceive(std::function<void(bool)> callback, // bool: receive successfully?
+        std::function<void(const std::string&, const std::vector<std::string>&)> process)
     {
         if (subscribes.find(subKey) != subscribes.end()) {
             return false;
         }
 
         subscribes.emplace(subKey, std::make_pair(std::thread(
-        [this, &callback, &process]() {
+        [this, callback, process]() {
             while (subscribes.find(subKey) == subscribes.end()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             } // Spin lock until emplaced.
