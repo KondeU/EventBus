@@ -66,6 +66,12 @@ public:
     {
         loop = true;
 
+        if (!OnStart()) {
+            OnExit();
+            loop = false;
+            return false;
+        }
+
         if (!OnBeginRun()) {
             OnExit();
             loop = false;
@@ -146,6 +152,8 @@ public:
     }
 
 protected:
+    virtual bool OnStart()      { return true; }
+
     virtual bool OnBeginRun()   { return true; }
     virtual bool OnEndRun()     { return true; }
 
@@ -155,7 +163,7 @@ protected:
     virtual bool OnBeforeTick() { return true; }
     virtual bool OnAfterTick()  { return true; }
 
-    virtual bool OnExit()       { return true; }
+    virtual void OnExit()       { return; }
 
 private:
     bool loop = false;

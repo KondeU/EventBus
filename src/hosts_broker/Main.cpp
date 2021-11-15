@@ -10,8 +10,8 @@ public:
         unsigned int systemThreadCount = std::thread::hardware_concurrency();
         communicator.Configure(systemThreadCount / 2, 64);
 
-        std::string sub = "tcp://127.0.0.1:" + std::to_string(GetConfigInt("lbp2"));
-        std::string pub = "tcp://127.0.0.1:" + std::to_string(GetConfigInt("lbp1"));
+        std::string sub = "tcp://*:" + std::to_string(GetConfigInt("hbp2"));
+        std::string pub = "tcp://*:" + std::to_string(GetConfigInt("hbp1"));
         broker = communicator.Create<tibus::communicate::Broker>(sub, pub);
         if (!broker) {
             return false;

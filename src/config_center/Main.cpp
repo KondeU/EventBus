@@ -40,6 +40,7 @@ int main(int argc, char* argv[])
     MyModule myModule; // for test
 
     signal(SIGINT, SignalHandler);
+    Application::GetReference().Configure(argc, argv);
     Application::GetReference().Run();
     return 0;
 }
