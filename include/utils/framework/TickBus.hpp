@@ -9,7 +9,7 @@ public:
     virtual void OnTick() = 0;
 };
 
-class TickBus : public tibus::BusTrait<TickBus, TickBusEvent, tibus::MultiHostBusGroup> {
+class TickBus : public tibus::BusTrait<TickBus, TickBusEvent> {
 public:
     void OnInit() override
     {
