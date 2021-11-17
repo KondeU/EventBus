@@ -1,28 +1,29 @@
 #pragma once
 
+#include "NonCopyable.hpp"
+
 namespace tibus {
 namespace common {
 
-template <typename T, int N = 0>
-class Singleton {
+template <typename T>
+class Singleton : public NonCopyable {
 public:
     static T& GetReference()
     {
-        static T instance{};
         return instance;
     }
 
-    T& operator()() const
-    {
-        return reference;
-    }
+    ~Singleton() = default;
+
+protected:
+    Singleton() = default;
 
 private:
-    static T& reference;
+    static T instance;
 };
 
-template <typename T, int N>
-T& Singleton<T, N>::reference = Singleton<T, N>::GetReference();
+template <typename T>
+T Singleton<T>::instance;
 
 }
 }

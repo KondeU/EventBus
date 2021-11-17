@@ -18,15 +18,15 @@ public:
         socket.set(zmq::sockopt::unsubscribe, envelope);
     }
 
-    bool StartReceive(const std::function<void(bool)>& callback, // bool: receive successfully?
-        const std::function<void(const std::string&, const std::string&)>& process)
+    bool StartReceive(std::function<void(bool)> callback, // bool: receive successfully?
+        std::function<void(const std::string&, const std::vector<std::string>&)> process)
     {
         if (subscribes.find(subKey) != subscribes.end()) {
             return false;
         }
 
         subscribes.emplace(subKey, std::make_pair(std::thread(
-        [this, &callback, &process]() {
+        [this, callback, process]() {
             while (subscribes.find(subKey) == subscribes.end()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
             } // Spin lock until emplaced.
@@ -35,18 +35,20 @@ public:
             while (exit) {
                 std::vector<zmq::message_t> messages;
                 (void)zmq::recv_multipart(socket, std::back_inserter(messages));
-                if (messages.size() != 2) { // envelope + content
-                    callback(false); // false means receive timeout!
-                } else {
-                    std::string envelope;
-                    std::string content;
-
-                    // envelope value is a pure string.
+                if (messages.size() > 0) { // envelope + contents...
+                    std::string envelope;  // envelope value is a pure string.
+                    std::vector<std::string> contents;
                     envelope = messages[0].to_string();
-                    content = content.replace(content.begin(), content.end(),
-                        static_cast<char*>(messages[1].data()), messages[1].size());
-                    process(envelope, content);
+                    contents.resize(messages.size() - 1);
+                    for (size_t n = 1; n < messages.size(); n++) {
+                        std::string& content = contents[n - 1];
+                        content = content.replace(content.begin(), content.end(),
+                            static_cast<char*>(messages[n].data()), messages[n].size());
+                    }
+                    process(envelope, contents);
                     callback(true);
+                } else {
+                    callback(false); // false means receive timeout!
                 }
             }
         }), true));

@@ -48,7 +48,7 @@ public:
     }
 
     void SetCaptureCallback(const std::function<
-        void(std::vector<std::string>&)>& callback)
+        void(const std::vector<std::string>&)>& callback)
     {
         captureCallback = callback;
     }
@@ -76,8 +76,11 @@ private:
               const std::string& xpubAddr,
               bool isCapture = false)
     {
-        const std::string bcon = "inproc://bcon";
-        const std::string bcap = "inproc://bcap";
+        static size_t num = 0;
+        const std::string prefix = "inproc://__internal_broker_";
+        const std::string bcon = prefix + std::to_string(num);
+        const std::string bcap = prefix + std::to_string(num);
+        num++; // There may be more than one broker in a process.
 
         try {
             control.bind(bcon);
