@@ -96,10 +96,16 @@ private:
     {
     }
 
-    bool Init(const std::string& address)
+    bool Init(const std::string& address, bool reverse = false)
     {
         try {
             socket.connect(address);
+
+            if (reverse) {
+                socket.bind(address);
+            } else {
+                socket.connect(address); // Standard subscriber
+            }
         } catch (zmq::error_t) {
             return false;
         }

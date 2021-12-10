@@ -50,10 +50,10 @@ private:
     bool Init(const std::string& address, bool proxy = false)
     {
         try {
-            if (!proxy) {
-                socket.bind(address); // Standard publisher
-            } else {
+            if (proxy) {
                 socket.connect(address); // Publish to broker
+            } else {
+                socket.bind(address); // Standard publisher
             }
         } catch (zmq::error_t) {
             return false;
