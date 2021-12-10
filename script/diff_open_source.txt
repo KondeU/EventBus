@@ -1,7 +1,7 @@
-How to 'diff' the open source:
+:: How to 'diff' the open source:
 
 :: Replace this path to your local repository path.
-set REPO_PATH=D:\GitHub\TiBus\3rd
+set REPO_PATH=E:\GithubRepo\TiBus\3rd
 
 PATH=%REPO_PATH%\diff\bin;%PATH%
 cd %REPO_PATH%

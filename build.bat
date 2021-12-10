@@ -16,7 +16,7 @@ if "%RUN_MODE%"=="msvc"  (call script\build_msvc.bat  %BUILD_TYPE% %BUILD_BITS% 
 if "%RUN_MODE%"=="mingw" (call script\build_mingw.bat %BUILD_TYPE% %BUILD_BITS% %BUILD_COMPILE%)
 
 rem run by default or double click
-if "%RUN_MODE%"=="man" (call script\build_msvc.bat Debug x64 VS2015)
+if "%RUN_MODE%"=="man" (call script\build_msvc.bat Debug x64 VS2022)
 
 rem run by ci or full release build
 if "%RUN_MODE%"=="ci" (call script\ci.bat)

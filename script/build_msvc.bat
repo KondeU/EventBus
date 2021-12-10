@@ -5,18 +5,21 @@ set BUILD_BITS=%2
 set BUILD_COMPILE=%3
 
 rem script params: msvc.bat [BUILD_TYPE] [BUILD_COMPILE] [BUILD_BITS]
-rem default value: BUILD_TYPE=Debug BUILD_COMPILE=VS2015 BUILD_BITS=x86
+rem default value: BUILD_TYPE=Debug BUILD_COMPILE=VS2017 BUILD_BITS=x86
 
 if "%BUILD_TYPE%"=="" (set BUILD_TYPE=Debug)
-if "%BUILD_COMPILE%"=="" (set BUILD_COMPILE=VS2015)
+if "%BUILD_COMPILE%"=="" (set BUILD_COMPILE=VS2017)
+
+set BUILD_COMPILE_NUM=%BUILD_COMPILE:~-2%
 
 if "%BUILD_COMPILE%"=="VS2015" (set BUILD_COMPILE=Visual Studio 14 2015)
 if "%BUILD_COMPILE%"=="VS2017" (set BUILD_COMPILE=Visual Studio 15 2017)
 if "%BUILD_COMPILE%"=="VS2019" (set BUILD_COMPILE=Visual Studio 16 2019)
+if "%BUILD_COMPILE%"=="VS2022" (set BUILD_COMPILE=Visual Studio 17 2022)
 
-rem only VS2019 uses "BUILD_ARCH_ARG"
+rem over VS2019 uses "BUILD_ARCH_ARG"
 set BUILD_ARCH_ARG=
-if "%BUILD_COMPILE%"=="Visual Studio 16 2019" (
+if %BUILD_COMPILE_NUM% GEQ 19 (
 if "%BUILD_BITS%"=="x64" (set BUILD_ARCH_ARG=-A x64) ^
 else (set BUILD_ARCH_ARG=-A Win32)
 ) else (
