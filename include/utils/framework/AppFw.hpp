@@ -39,22 +39,22 @@ public:
 
     int GetConfigInt(const std::string& item)
     {
-        return atoi(configs[item].c_str());
+        return std::stoi(configs[item]);
     }
 
     long GetConfigLong(const std::string& item)
     {
-        return atol(configs[item].c_str());
+        return std::stol(configs[item]);
     }
 
     long long GetConfigLongLong(const std::string& item)
     {
-        return atoll(configs[item].c_str());
+        return std::stoll(configs[item]);
     }
 
     double GetConfigDouble(const std::string& item)
     {
-        return atof(configs[item].c_str());
+        return std::stof(configs[item]);
     }
 
     std::string GetConfig(const std::string& item)
