@@ -184,7 +184,7 @@ protected:
     bool StartCommunication(const std::string& subAddr, const std::string& pubAddr)
     {
         if (!subscriber) {
-            subscriber = communicate::Communicator::GetReference()
+            subscriber = communicate::CommunicateContext::GetReference()
                 .Create<communicate::Subscriber>(subAddr);
             if (subscriber) {
                 for (const auto& bus : buses) {
@@ -196,7 +196,7 @@ protected:
             }
         }
         if (!publisher) {
-            publisher = communicate::Communicator::GetReference()
+            publisher = communicate::CommunicateContext::GetReference()
                 .Create<communicate::Publisher>(pubAddr, true);
         }
         return (subscriber && publisher);
@@ -208,13 +208,13 @@ protected:
             subscriber->StopReceive();
             subscriber->WaitReceive();
             subscriber->ResetReceive();
-            if (communicate::Communicator::GetReference()
+            if (communicate::CommunicateContext::GetReference()
                 .Destroy(subscriber)) {
                 subscriber = nullptr;
             }
         }
         if (publisher) {
-            if (communicate::Communicator::GetReference()
+            if (communicate::CommunicateContext::GetReference()
                 .Destroy(publisher)) {
                 publisher = nullptr;
             }
