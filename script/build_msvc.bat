@@ -43,6 +43,7 @@ cmake -G "%BUILD_COMPILE%" %BUILD_ARCH_ARG% ^
 -DZMQ_BUILD_TESTS=OFF ^
 -DCMAKE_INSTALL_PREFIX=%~dp0..\build\dependency\zeromq\zeromq ^
 -DWITH_LIBSODIUM=OFF ^
+-DENABLE_DRAFTS=OFF ^
 ../../../../3rd/zeromq
 cmake --build . --config %BUILD_TYPE% -j 8
 cmake --install . --config %BUILD_TYPE%
