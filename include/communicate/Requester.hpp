@@ -40,13 +40,14 @@ private:
     {
     }
 
-    bool Init(const std::string& address)
+    bool Init(const std::string& address,
+        std::vector<std::string> encryption = {})
     {
         // Set the buffer of the client to 0 in order to
         // make sure that messages will not accumulate.
         socket.set(zmq::sockopt::linger, 0);
-        // TODO: Setup encryption.
-        SetupEncryption(socket, {}/*encryption*/);
+        // Setup encryption.
+        SetupEncryption(socket, encryption);
         try {
             socket.connect(address);
         } catch (zmq::error_t) {
