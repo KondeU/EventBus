@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    friend class Communicator;
+    friend class CommunicateContext;
 
     explicit Broker(zmq::context_t& context) : context(context)
         , xsub(context, zmq::socket_type::xsub)

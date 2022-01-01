@@ -4,7 +4,7 @@
 #include "common/Any.hpp"
 #include "common/Binder.hpp"
 #include "serialize/Serializer.hpp"
-#include "communicate/Communicator.hpp"
+#include "communicate/CommunicateContext.hpp"
 #include "BusTraitBase.hpp"
 
 namespace tibus {

@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    friend class Communicator;
+    friend class CommunicateContext;
 
     explicit Responder(zmq::context_t& context)
         : context(context), socket(context, zmq::socket_type::rep)

@@ -89,7 +89,7 @@ public:
     }
 
 private:
-    friend class Communicator;
+    friend class CommunicateContext;
 
     explicit Subscriber(zmq::context_t& context)
         : context(context), socket(context, zmq::socket_type::sub)

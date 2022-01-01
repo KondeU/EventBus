@@ -6,7 +6,7 @@ class Application : public ApplicationFramework
 public:
     bool OnStart() override
     {
-        auto& communicator = tibus::communicate::Communicator::GetReference();
+        auto& communicator = tibus::communicate::CommunicateContext::GetReference();
         unsigned int systemThreadCount = std::thread::hardware_concurrency();
         communicator.Configure(systemThreadCount / 2, 64);
 
@@ -34,7 +34,7 @@ private:
     {
         if (broker) {
             broker->Terminate(); // Terminating broker thread!
-            tibus::communicate::Communicator::GetReference().Destroy(broker);
+            tibus::communicate::CommunicateContext::GetReference().Destroy(broker);
             broker = nullptr;
         }
     }
