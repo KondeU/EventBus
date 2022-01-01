@@ -2,11 +2,12 @@
 
 #include <thread>
 #include <zmq_addon.hpp>
+#include "Communicator.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Broker {
+class Broker : public Communicator {
 public:
     void Pause()
     {

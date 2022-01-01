@@ -1,11 +1,11 @@
 #pragma once
 
-#include <zmq.hpp>
+#include "Communicator.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Publisher {
+class Publisher : public Communicator {
 public:
     void Publish(const std::string& envelope, const std::string& content)
     {

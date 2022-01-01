@@ -2,11 +2,12 @@
 
 #include <thread>
 #include <zmq_addon.hpp>
+#include "Communicator.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Subscriber {
+class Subscriber : public Communicator {
 public:
     void Subscribe(const std::string& envelope)
     {

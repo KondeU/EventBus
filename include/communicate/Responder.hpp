@@ -2,12 +2,12 @@
 
 #include <thread>
 #include <unordered_map>
-#include <zmq.hpp>
+#include "Communicator.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Responder {
+class Responder : public Communicator {
 public:
     bool StartResponse(const std::function<void(const std::string&, std::string&)>& proc)
     {

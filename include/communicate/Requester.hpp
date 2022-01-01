@@ -1,12 +1,12 @@
 #pragma once
 
-#include <zmq.hpp>
+#include "Communicator.hpp"
 #include "CommunicationCode.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Requester {
+class Requester : public Communicator {
 public:
     int SetTimeout(int ms)
     {
