@@ -2,12 +2,12 @@
 
 #include <thread>
 #include <unordered_map>
-#include <zmq.hpp>
+#include "Communicator.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Responder {
+class Responder : public Communicator {
 public:
     bool StartResponse(const std::function<void(const std::string&, std::string&)>& proc)
     {
@@ -76,22 +76,25 @@ public:
     }
 
 private:
-    friend class Communicator;
+    friend class CommunicateContext;
 
     explicit Responder(zmq::context_t& context)
         : context(context), socket(context, zmq::socket_type::rep)
     {
     }
 
-    bool Init(const std::string& address)
+    bool Init(const std::string& address,
+        std::vector<std::string> encryption = {})
     {
+        // Responder blocks and calls recv per second.
+        socket.set(zmq::sockopt::rcvtimeo, 1000);
+        // Setup encryption.
+        SetupEncryption(socket, encryption);
         try {
             socket.bind(address);
         } catch (zmq::error_t) {
             return false;
         }
-        // Responder blocks and calls recv per second.
-        socket.set(zmq::sockopt::rcvtimeo, 1000);
         return true;
     }
 

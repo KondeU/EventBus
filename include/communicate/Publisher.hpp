@@ -1,11 +1,11 @@
 #pragma once
 
-#include <zmq.hpp>
+#include "Communicator.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Publisher {
+class Publisher : public Communicator {
 public:
     void Publish(const std::string& envelope, const std::string& content)
     {
@@ -40,24 +40,16 @@ public:
     }
 
 private:
-    friend class Communicator;
+    friend class CommunicateContext;
 
     explicit Publisher(zmq::context_t& context)
         : context(context), socket(context, zmq::socket_type::pub)
     {
     }
 
-    bool Init(const std::string& address, bool proxy = false)
+    bool Init(const std::string& address, bool proxy = false,
+        int hwm = 0, std::vector<std::string> encryption = {})
     {
-        try {
-            if (!proxy) {
-                socket.bind(address); // Standard publisher
-            } else {
-                socket.connect(address); // Publish to broker
-            }
-        } catch (zmq::error_t) {
-            return false;
-        }
         // By default, the linger value of zeromq is set to -1, it means that
         // if the network send/recv is not complete, the process cannot exit.
         // That is, if a zeromq's socket is used to send data but the data is
@@ -71,7 +63,17 @@ private:
         // the network send/recv is complete within the specified period or timeout,
         // and then zmq_term will return.
         socket.set(zmq::sockopt::linger, 0);
-        if (socket.get(zmq::sockopt::linger) != 0) {
+        // Set a High-Water Mark for the sender, default is no limit.
+        socket.set(zmq::sockopt::sndhwm, hwm);
+        // Setup encryption.
+        SetupEncryption(socket, encryption);
+        try {
+            if (proxy) {
+                socket.connect(address); // Publish to broker
+            } else {
+                socket.bind(address); // Standard publisher
+            }
+        } catch (zmq::error_t) {
             return false;
         }
         return true;

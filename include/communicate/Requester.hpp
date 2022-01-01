@@ -1,12 +1,12 @@
 #pragma once
 
-#include <zmq.hpp>
+#include "Communicator.hpp"
 #include "CommunicationCode.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Requester {
+class Requester : public Communicator {
 public:
     int SetTimeout(int ms)
     {
@@ -33,24 +33,24 @@ public:
     }
 
 private:
-    friend class Communicator;
+    friend class CommunicateContext;
 
     explicit Requester(zmq::context_t& context)
         : context(context), socket(context, zmq::socket_type::req)
     {
     }
 
-    bool Init(const std::string& address)
+    bool Init(const std::string& address,
+        std::vector<std::string> encryption = {})
     {
-        try {
-            socket.connect(address);
-        } catch (zmq::error_t) {
-            return false;
-        }
         // Set the buffer of the client to 0 in order to
         // make sure that messages will not accumulate.
         socket.set(zmq::sockopt::linger, 0);
-        if (socket.get(zmq::sockopt::linger) != 0) {
+        // Setup encryption.
+        SetupEncryption(socket, encryption);
+        try {
+            socket.connect(address);
+        } catch (zmq::error_t) {
             return false;
         }
         return true;

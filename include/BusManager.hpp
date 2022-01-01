@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BusGroup.hpp"
+#include "BusDebugger.hpp"
 
 namespace tibus {
 
@@ -91,6 +92,7 @@ public:
 
     void ExecuteReceivedEvents() const
     {
+        BusDebugger::GetReference().ThreadCheckAssert();
         InProcessBusGroup::GetReference().Update();
         LocalHostBusGroup::GetReference().Update();
         MultiHostBusGroup::GetReference().Update();

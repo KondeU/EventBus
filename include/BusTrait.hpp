@@ -11,6 +11,7 @@ public:
     template <typename Actor, typename Return, class ...Args>
     Return EventNow(const Actor& actor, Return(Event::* func)(Args...), const Args& ...args) const
     {
+        BusDebugger::GetReference().ThreadCheckAssert();
         const auto& handler = handlers.find(&actor);
         if (handler == handlers.end()) {
             return {}; // User logic error, actor not found!
@@ -21,6 +22,7 @@ public:
     template <typename Actor, class ...Args>
     void EventNow(const Actor& actor, void(Event::* func)(Args...), const Args& ...args) const
     {
+        BusDebugger::GetReference().ThreadCheckAssert();
         const auto& handler = handlers.find(&actor);
         if (handler == handlers.end()) {
             return; // User logic error, actor not found!
@@ -31,6 +33,7 @@ public:
     template <class ...Args>
     void EventNow(void(Event::* func)(Args...), const Args& ...args) const
     {
+        BusDebugger::GetReference().ThreadCheckAssert();
         for (const auto& handler : handlers) {
             (handler.second->*func)(args...);
         }
@@ -40,6 +43,7 @@ public:
     void EventQueue(const std::string& handler,
         void(Event::* func)(Args...), const Args& ...args) const
     {
+        BusDebugger::GetReference().ThreadCheckAssert();
         const auto& iter = functionsName.find(reinterpret_cast<uintptr_t*&>(func));
         if (iter == functionsName.end()) {
             return;
@@ -58,7 +62,9 @@ public:
     template <class ...Args>
     void EventQueue(void(Event::* func)(Args...), const Args& ...args) const
     {
-        // If the handler string is empty, the event is a broadcast event :-)
+        BusDebugger::GetReference().ThreadCheckAssert();
+        // If the handler string is an empty string,
+        // the event is a broadcast event :-)
         EventQueue("", func, args...);
     }
 

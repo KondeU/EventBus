@@ -2,11 +2,12 @@
 
 #include <thread>
 #include <zmq_addon.hpp>
+#include "Communicator.hpp"
 
 namespace tibus {
 namespace communicate {
 
-class Subscriber {
+class Subscriber : public Communicator {
 public:
     void Subscribe(const std::string& envelope)
     {
@@ -89,22 +90,31 @@ public:
     }
 
 private:
-    friend class Communicator;
+    friend class CommunicateContext;
 
     explicit Subscriber(zmq::context_t& context)
         : context(context), socket(context, zmq::socket_type::sub)
     {
     }
 
-    bool Init(const std::string& address)
+    bool Init(const std::string& address, bool reverse = false,
+        int hwm = 0, std::vector<std::string> encryption = {})
     {
+        // Subscriber blocks and calls recv_multipart per second.
+        socket.set(zmq::sockopt::rcvtimeo, 1000);
+        // Set a High-Water Mark for the receiver, default is no limit.
+        socket.set(zmq::sockopt::rcvhwm, hwm);
+        // Setup encryption.
+        SetupEncryption(socket, encryption);
         try {
-            socket.connect(address);
+            if (reverse) {
+                socket.bind(address);
+            } else {
+                socket.connect(address); // Standard subscriber
+            }
         } catch (zmq::error_t) {
             return false;
         }
-        // Subscriber blocks and calls recv_multipart per second.
-        socket.set(zmq::sockopt::rcvtimeo, 1000);
         return true;
     }
 
