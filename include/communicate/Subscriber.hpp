@@ -105,7 +105,7 @@ private:
         // Set a High-Water Mark for the receiver, default is no limit.
         socket.set(zmq::sockopt::rcvhwm, hwm);
         // Setup encryption.
-        // TODO
+        SetupEncryption(socket, encryption);
         try {
             if (reverse) {
                 socket.bind(address);

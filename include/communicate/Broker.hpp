@@ -73,9 +73,8 @@ private:
     {
     }
 
-    bool Init(const std::string& xsubAddr,
-              const std::string& xpubAddr,
-              bool isCapture = false)
+    bool Init(const std::string& xsubAddr, const std::string& xpubAddr,
+              bool isCapture = false, std::vector<std::string> encryption = {})
     {
         static size_t num = 0;
         const std::string prefix = "inproc://__internal_broker_";
@@ -92,12 +91,17 @@ private:
                 captureCP.connect(bcap);
             }
 
+            // Setup encryption.
+            SetupEncryption(xsub, encryption);
+            SetupEncryption(xpub, encryption);
+
             xsub.bind(xsubAddr);
             xpub.bind(xpubAddr);
         } catch (zmq::error_t) {
             return false;
         }
 
+        // Capture thread.
         if (isCapture) {
             captureCP.set(zmq::sockopt::rcvtimeo, 1000);
             captureThread = std::thread([this]() {
@@ -122,6 +126,7 @@ private:
             });
         }
 
+        // Broker thread.
         proxyThread = std::thread([this, isCapture]() {
             zmq::socket_ref captureRef = isCapture ?
                 capture : zmq::socket_ref();

@@ -66,7 +66,7 @@ private:
         // Set a High-Water Mark for the sender, default is no limit.
         socket.set(zmq::sockopt::sndhwm, hwm);
         // Setup encryption.
-        // TODO
+        SetupEncryption(socket, encryption);
         try {
             if (proxy) {
                 socket.connect(address); // Publish to broker

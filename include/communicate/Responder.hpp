@@ -87,6 +87,8 @@ private:
     {
         // Responder blocks and calls recv per second.
         socket.set(zmq::sockopt::rcvtimeo, 1000);
+        // TODO: Setup encryption.
+        SetupEncryption(socket, {}/*encryption*/);
         try {
             socket.bind(address);
         } catch (zmq::error_t) {
