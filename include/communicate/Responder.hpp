@@ -85,13 +85,13 @@ private:
 
     bool Init(const std::string& address)
     {
+        // Responder blocks and calls recv per second.
+        socket.set(zmq::sockopt::rcvtimeo, 1000);
         try {
             socket.bind(address);
         } catch (zmq::error_t) {
             return false;
         }
-        // Responder blocks and calls recv per second.
-        socket.set(zmq::sockopt::rcvtimeo, 1000);
         return true;
     }
 

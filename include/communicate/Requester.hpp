@@ -42,15 +42,12 @@ private:
 
     bool Init(const std::string& address)
     {
-        try {
-            socket.connect(address);
-        } catch (zmq::error_t) {
-            return false;
-        }
         // Set the buffer of the client to 0 in order to
         // make sure that messages will not accumulate.
         socket.set(zmq::sockopt::linger, 0);
-        if (socket.get(zmq::sockopt::linger) != 0) {
+        try {
+            socket.connect(address);
+        } catch (zmq::error_t) {
             return false;
         }
         return true;

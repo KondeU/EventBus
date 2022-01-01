@@ -97,11 +97,16 @@ private:
     {
     }
 
-    bool Init(const std::string& address, bool reverse = false)
+    bool Init(const std::string& address, bool reverse = false,
+        int hwm = 0, std::vector<std::string> encryption = {})
     {
+        // Subscriber blocks and calls recv_multipart per second.
+        socket.set(zmq::sockopt::rcvtimeo, 1000);
+        // Set a High-Water Mark for the receiver, default is no limit.
+        socket.set(zmq::sockopt::rcvhwm, hwm);
+        // Setup encryption.
+        // TODO
         try {
-            socket.connect(address);
-
             if (reverse) {
                 socket.bind(address);
             } else {
@@ -110,8 +115,6 @@ private:
         } catch (zmq::error_t) {
             return false;
         }
-        // Subscriber blocks and calls recv_multipart per second.
-        socket.set(zmq::sockopt::rcvtimeo, 1000);
         return true;
     }
 
