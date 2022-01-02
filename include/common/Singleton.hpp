@@ -10,20 +10,14 @@ class Singleton : public NonCopyable {
 public:
     static T& GetReference()
     {
+        static T instance{};
         return instance;
     }
 
-    ~Singleton() = default;
-
 protected:
     Singleton() = default;
-
-private:
-    static T instance;
+    ~Singleton() = default;
 };
-
-template <typename T>
-T Singleton<T>::instance;
 
 }
 }

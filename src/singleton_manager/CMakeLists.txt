@@ -2,4 +2,4 @@
 project(singleton_manager)
 
 file(GLOB_RECURSE SRC *.cpp)
-add_library(singleton_manager SHARED ${SRC} ${INC})
+add_library(sgtmgr SHARED ${SRC} ${INC})
