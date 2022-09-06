@@ -21,14 +21,14 @@ protected:
             return false;
         }
 
-        if (!(GetRelatedBus().handlers.emplace(&actor, this)).second) {
+        if (!(Event::GetRelatedBus().handlers.emplace(&actor, this)).second) {
             return false;
         }
 
         if (actor.UniqueName() != "") {
-            if (!(GetRelatedBus().namedHandlers.emplace(
+            if (!(Event::GetRelatedBus().namedHandlers.emplace(
                 actor.UniqueName(), this)).second) {
-                GetRelatedBus().handlers.erase(&actor);
+                Event::GetRelatedBus().handlers.erase(&actor);
                 return false;
             }
         }
@@ -43,12 +43,12 @@ protected:
             return false;
         }
 
-        if (GetRelatedBus().handlers.erase(&actor) <= 0) {
+        if (Event::GetRelatedBus().handlers.erase(&actor) <= 0) {
             return false;
         }
 
         if (actor.UniqueName() != "") {
-            if (GetRelatedBus().handlers.erase(&actor) <= 0) {
+            if (Event::GetRelatedBus().handlers.erase(&actor) <= 0) {
                 return false;
             }
         }
