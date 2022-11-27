@@ -5,11 +5,11 @@
 class ErrorHandler : public tibus::common::GlobalSingleton<ErrorHandler> {
 public:
     struct BasicLevel {
-        static constexpr int Debug       = -1;
-        static constexpr int Information =  0;
-        static constexpr int Warning     =  1;
-        static constexpr int Error       =  2;
-        static constexpr int Fatal       =  3;
+        static constexpr int Debug       =      -1;
+        static constexpr int Information =       0;
+        static constexpr int Warning     =  100000;
+        static constexpr int Error       =  200000;
+        static constexpr int Fatal       =  300000;
     };
 
     struct BasicCode {
@@ -28,14 +28,14 @@ public:
         errors[code] = std::make_pair(level, description);
     }
 
-    void ThrowError(int code)
+    void ThrowError(int code, const std::string& information = {})
     {
         if (callback) {
-            callback(errors[code].first, code, errors[code].second);
+            callback(errors[code].first, code, errors[code].second, information);
         }
     }
 
 private:
     std::unordered_map<int, std::pair<int, std::string>> errors;
-    std::function<void(int, int, const std::string&)> callback;
+    std::function<void(int, int, const std::string&, const std::string&)> callback;
 };

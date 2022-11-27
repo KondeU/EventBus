@@ -1,5 +1,2 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-
-# Ignore the third-party code language
-3rd/** linguist-vendored
