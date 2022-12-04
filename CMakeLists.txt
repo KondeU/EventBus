@@ -16,13 +16,10 @@ install(TARGETS ${target_artifact}
   PUBLIC_HEADER DESTINATION include/external)
 endmacro()
 
-macro(install_dependent_open_source_headers headers_directory)
-install(DIRECTORY ${headers_directory} DESTINATION include/external)
-endmacro()
-
 add_subdirectory(3rd)
-add_subdirectory(source)
+#add_subdirectory(source)
 
 install(DIRECTORY include/ DESTINATION include)
+install(FILES User.cmake DESTINATION . RENAME EventBus.cmake)
 install(FILES LICENSE.txt DESTINATION .)
 install(FILES README.md DESTINATION .)
