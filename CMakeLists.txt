@@ -9,15 +9,15 @@ include_directories(include)
 file(GLOB_RECURSE INC include/*)
 
 macro(install_artifact target_artifact)
-install(TARGETS ${target_artifact}
-  ARCHIVE DESTINATION library # .lib/.a
-  LIBRARY DESTINATION runtime # .dll/.so
-  RUNTIME DESTINATION runtime # .exe/.out
-  PUBLIC_HEADER DESTINATION include/external)
+  install(TARGETS ${target_artifact}
+    ARCHIVE DESTINATION library # .lib/.a
+    LIBRARY DESTINATION runtime # .dll/.so
+    RUNTIME DESTINATION runtime # .exe/.out
+    PUBLIC_HEADER DESTINATION include/external)
 endmacro()
 
 add_subdirectory(3rd)
-#add_subdirectory(source)
+add_subdirectory(source)
 
 install(DIRECTORY include/ DESTINATION include)
 install(FILES User.cmake DESTINATION . RENAME EventBus.cmake)

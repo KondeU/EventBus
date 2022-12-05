@@ -1,7 +1,9 @@
-﻿cmake_minimum_required(VERSION 3.10)
-project(hosts_broker)
+﻿cmake_minimum_required(VERSION 3.14)
+project(hosts_broker_core)
 
 file(GLOB_RECURSE SRC *.cpp)
-add_executable(hosts_broker ${SRC} ${INC})
+add_library(${PROJECT_NAME} STATIC ${SRC} ${INC})
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/../.. FILES ${SRC} ${INC})
+install_artifact(${PROJECT_NAME})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/../../.. FILES ${SRC} ${INC})

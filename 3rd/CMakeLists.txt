@@ -14,7 +14,7 @@ set(THIRD_PARTY_EXTERNAL ${CMAKE_CURRENT_SOURCE_DIR}/external)
 set(THIRD_PARTY_INTERNAL ${CMAKE_CURRENT_SOURCE_DIR}/internal)
 
 macro(install_external_open_source_headers headers_directory)
-install(DIRECTORY ${headers_directory} DESTINATION external)
+  install(DIRECTORY ${headers_directory} DESTINATION external)
 endmacro()
 
 #==============================================================================
@@ -71,12 +71,16 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/zeromq
 install_external_open_source_headers(${THIRD_PARTY_EXTERNAL}/zeromq/output/include/)
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib)
-target_link_libraries(${PROJECT_NAME} PUBLIC libzmq)
+if(MSVC)
+  target_link_libraries(${PROJECT_NAME} PUBLIC libzmq)
+else()
+  target_link_libraries(${PROJECT_NAME} PUBLIC zmq)
+endif()
 
 if(WIN32)
-install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.dll DESTINATION runtime)
+  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.dll DESTINATION runtime)
 else()
-install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.so DESTINATION runtime)
+  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.so DESTINATION runtime)
 endif()
 
 #==============================================================================
@@ -141,9 +145,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_INTERNAL}/gsgt/o
 install(DIRECTORY ${THIRD_PARTY_INTERNAL}/gsgt/output/include/ DESTINATION include/common)
 
 if(WIN32)
-install(FILES ${THIRD_PARTY_INTERNAL}/gsgt/output/runtime/sgtmgr.dll DESTINATION runtime)
+  install(FILES ${THIRD_PARTY_INTERNAL}/gsgt/output/runtime/sgtmgr.dll DESTINATION runtime)
 else()
-install(FILES ${THIRD_PARTY_INTERNAL}/gsgt/output/runtime/libsgtmgr.so DESTINATION runtime)
+  install(FILES ${THIRD_PARTY_INTERNAL}/gsgt/output/runtime/libsgtmgr.so DESTINATION runtime)
 endif()
 
 #==============================================================================
