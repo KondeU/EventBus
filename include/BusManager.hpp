@@ -61,11 +61,11 @@ public:
                 MultiHostBusGroup::GetReference().Start(
                     info.h[0].ip, info.h[0].sport, info.h[0].pport);
             }
-            // FALL THROUGH
+            [[fallthrough]];
         case BusGroupLevel::LocalHost:
             LocalHostBusGroup::GetReference().Start(
                 info.l.sport, info.l.pport);
-            // FALL THROUGH
+            [[fallthrough]];
         case BusGroupLevel::InProcess:
             break; // Nothing to do.
         }

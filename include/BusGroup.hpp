@@ -17,11 +17,6 @@ public:
 
 class BusGroupEx : public BusGroup {
 public:
-    // Use this type to determine the serialization processor: It
-    // could be CerealSerializeProcesser, MsgpackSerializeProcesser
-    // or custom serialization processor.
-    using SerializeProcesser = serialize::CerealSerializeProcesser;
-
     void BindBus(const std::string& name, const BusTraitBase& bus)
     {
         buses[&bus] = name;
@@ -126,8 +121,8 @@ private:
     std::unordered_map<std::string, std::pair<const BusTraitBase*, FunctionHashmap>> functions;
     std::unordered_map<const BusTraitBase*, std::string> buses;
 
-    serialize::Serializer<SerializeProcesser> sin;
-    serialize::Serializer<SerializeProcesser> sout;
+    serialize::NetBinSerializer sin;
+    serialize::NetBinSerializer sout;
 
     std::vector<std::function<void()>> actions;
     std::mutex mutex; // actions' mutex
