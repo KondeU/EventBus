@@ -3,6 +3,7 @@
 #include <string>
 
 namespace au {
+namespace ebus {
 
 class BusActorBase {
 public:
@@ -15,4 +16,5 @@ protected:
     BusActorBase() = default;
 };
 
+}
 }

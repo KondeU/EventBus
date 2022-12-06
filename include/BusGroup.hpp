@@ -1,13 +1,14 @@
 #pragma once
 
 #include <mutex>
-#include "common/Any.hpp"
-#include "common/Binder.hpp"
-#include "serialize/Serializer.hpp"
-#include "communicate/CommunicateContext.hpp"
+#include "Any.hpp"
+#include "Binder.hpp"
+#include "Serializer.hpp"
+#include "CommunicateContext.hpp"
 #include "BusTraitBase.hpp"
 
 namespace au {
+namespace ebus {
 
 class BusGroup {
 public:
@@ -364,4 +365,5 @@ private:
     std::string ipOfHostsBroker;
 };
 
+}
 }

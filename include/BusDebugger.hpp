@@ -2,9 +2,10 @@
 
 #include <thread>
 #include <cassert>
-#include "common/GlobalSingleton.hpp"
+#include "GlobalSingleton.hpp"
 
 namespace au {
+namespace ebus {
 
 class BusDebugger : public common::GlobalSingleton<BusDebugger> {
 public:
@@ -27,4 +28,5 @@ private:
     std::thread::id tid;
 };
 
+}
 }

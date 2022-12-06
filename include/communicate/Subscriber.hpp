@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thread>
+#include <unordered_set>
 #include <zmq_addon.hpp>
 #include "Communicator.hpp"
 

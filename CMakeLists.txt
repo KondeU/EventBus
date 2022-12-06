@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories(include)
+include_directories(include/common)
+include_directories(include/communicate)
+include_directories(include/serialize)
+include_directories(include/utils)
 file(GLOB_RECURSE INC include/*)
 
 macro(install_artifact target_artifact)

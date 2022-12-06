@@ -4,6 +4,7 @@
 #include "BusHandler.hpp"
 
 namespace au {
+namespace ebus {
 
 template <typename Bus, typename Event, typename Group = InProcessBusGroup>
 class BusTrait : public BusTraitBase, public common::GlobalSingleton<Bus> {
@@ -110,4 +111,5 @@ private:
     std::unordered_map<uintptr_t*, std::string> functionsName; // _vptr <-> functionsName
 };
 
+}
 }

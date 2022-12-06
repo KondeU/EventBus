@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thread>
+#include <functional>
 #include <unordered_map>
 #include "Communicator.hpp"
 

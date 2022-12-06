@@ -4,6 +4,7 @@
 #include "BusDebugger.hpp"
 
 namespace au {
+namespace ebus {
 
 class BusManager : public common::GlobalSingleton<BusManager> {
 public:
@@ -103,4 +104,5 @@ private:
     mutable bool working = false;
 };
 
+}
 }

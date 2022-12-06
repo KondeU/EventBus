@@ -3,6 +3,7 @@
 #include "BusActorBase.hpp"
 
 namespace au {
+namespace ebus {
 
 template <typename Event>
 class BusHandler : public Event {
@@ -61,4 +62,5 @@ private:
     const BusActorBase* cached = nullptr;
 };
 
+}
 }
