@@ -2,7 +2,7 @@
 
 #include "BusActorBase.hpp"
 
-namespace tibus {
+namespace au {
 
 template <typename ...Handlers>
 class BusActor : public BusActorBase, public Handlers... {

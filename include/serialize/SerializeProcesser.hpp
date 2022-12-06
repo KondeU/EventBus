@@ -2,7 +2,7 @@
 
 #include "SerializeHeaders.hpp"
 
-namespace tibus {
+namespace au {
 namespace serialize {
 
 // An empty base class, only

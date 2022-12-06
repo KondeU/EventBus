@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include "Communicator.hpp"
 
-namespace tibus {
+namespace au {
 namespace communicate {
 
 class Responder : public Communicator {

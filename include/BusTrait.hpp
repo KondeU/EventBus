@@ -3,7 +3,7 @@
 #include "BusManager.hpp"
 #include "BusHandler.hpp"
 
-namespace tibus {
+namespace au {
 
 template <typename Bus, typename Event, typename Group = InProcessBusGroup>
 class BusTrait : public BusTraitBase, public common::GlobalSingleton<Bus> {

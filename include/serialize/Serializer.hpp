@@ -2,7 +2,7 @@
 
 #include "SerializeProcesser.hpp"
 
-namespace tibus {
+namespace au {
 namespace serialize {
 
 template <typename Processor = CerealSerializeProcesser>

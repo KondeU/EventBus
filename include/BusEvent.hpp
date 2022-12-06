@@ -1,6 +1,6 @@
 #pragma once
 
-namespace tibus {
+namespace au {
 
 template <typename Bus>
 class BusEvent {

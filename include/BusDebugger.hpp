@@ -4,7 +4,7 @@
 #include <cassert>
 #include "common/GlobalSingleton.hpp"
 
-namespace tibus {
+namespace au {
 
 class BusDebugger : public common::GlobalSingleton<BusDebugger> {
 public:

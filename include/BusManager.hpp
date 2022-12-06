@@ -3,7 +3,7 @@
 #include "BusGroup.hpp"
 #include "BusDebugger.hpp"
 
-namespace tibus {
+namespace au {
 
 class BusManager : public common::GlobalSingleton<BusManager> {
 public:

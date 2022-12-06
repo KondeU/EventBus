@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace tibus {
+namespace au {
 
 class BusActorBase {
 public:

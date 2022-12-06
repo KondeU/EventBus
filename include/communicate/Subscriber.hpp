@@ -4,7 +4,7 @@
 #include <zmq_addon.hpp>
 #include "Communicator.hpp"
 
-namespace tibus {
+namespace au {
 namespace communicate {
 
 class Subscriber : public Communicator {

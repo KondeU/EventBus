@@ -7,7 +7,7 @@
 #include "communicate/CommunicateContext.hpp"
 #include "BusTraitBase.hpp"
 
-namespace tibus {
+namespace au {
 
 class BusGroup {
 public:

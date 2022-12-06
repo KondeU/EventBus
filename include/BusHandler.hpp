@@ -2,7 +2,7 @@
 
 #include "BusActorBase.hpp"
 
-namespace tibus {
+namespace au {
 
 template <typename Event>
 class BusHandler : public Event {

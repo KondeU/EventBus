@@ -2,7 +2,7 @@
 
 #include "Communicator.hpp"
 
-namespace tibus {
+namespace au {
 namespace communicate {
 
 class Publisher : public Communicator {
