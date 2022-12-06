@@ -300,8 +300,7 @@ public:
 private:
     // PLS see BusGroupEx::FunctionHashmap
     struct FunctionHashmap {
-        using Type = std::unordered_map<std::string,
-            std::function<void(const common::Any&)>>;
+        using Type = std::unordered_map<std::string, std::function<void(const common::Any&)>>;
 
         operator Type& ()
         {

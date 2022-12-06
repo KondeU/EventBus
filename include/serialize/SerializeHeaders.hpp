@@ -36,4 +36,7 @@
 #include <cereal/types/boost_variant.hpp>
 #endif
 
+#if !BOOST_VERSION
+#define MSGPACK_NO_BOOST
+#endif
 #include <msgpack.hpp>
