@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <tuple>
 
-namespace tirpc {
+namespace au {
 namespace rpc {
 
 enum class RpcCallError {

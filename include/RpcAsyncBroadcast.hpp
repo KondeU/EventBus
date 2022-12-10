@@ -1,12 +1,13 @@
 #pragma once
 
-#include "MultiServerSupportBase.hpp"
-#include "serializer/FunctionSerializer.hpp"
+#include "Serializer.hpp"
+#include "CommunicateContext.hpp"
 #include "RpcBasicTemplate.hpp"
 
-namespace tirpc {
+namespace au {
+namespace rpc {
 
-class RpcAsyncBroadcast : public MultiServerSupportBase {
+class RpcAsyncBroadcast {
 public:
     enum class Role {
         None,
@@ -16,24 +17,18 @@ public:
 
     RpcAsyncBroadcast()
     {
-        Communicator().ResetInstInvalid(responder);
-        Communicator().ResetInstInvalid(requester);
-        Communicator().ResetInstInvalid(publisher);
-        Communicator().ResetInstInvalid(subscriber);
-
         procResp = // NB: Caution that the life cycle of procResp!
-        [this](const std::string& request, std::string& respond)
-        {
+        [this](const std::string& request, std::string& respond) {
             ResponseProcess(request, respond);
         };
         procSub = // NB: Caution that the life cycle of procSub!
-        [this](const std::string& envelope, const std::string& content)
-        {
-            SubscribeProcess(envelope, content);
+        [this](const std::string& envelope, const std::vector<std::string>& contents) {
+            if (!contents.empty()) {
+                SubscribeProcess(envelope, contents[0]);
+            }
         };
         procSubCb = // NB: Caution that the life cycle of procSubCb!
-        [this](bool receivedSuccess)
-        {
+        [this](bool receivedSuccess) {
             if (receivedSuccess) {
                 receiveTimeoutCounter = 0;
             } else {
@@ -71,41 +66,36 @@ public:
             return false;
 
         case Role::Server:
-            publisher = Communicator().CreatePublisher(addrPubSub);
-            if (Communicator().IsInstInvalid(publisher)) {
+            publisher = communicate::CommunicateContext::GetReference()
+                .Create<communicate::Publisher>(addrPubSub);
+            if (publisher == nullptr) {
                 success = false;
             }
-            responder = Communicator().CreateResponder(addrReqRep);
-            if (Communicator().IsInstInvalid(responder)) {
+            responder = communicate::CommunicateContext::GetReference()
+                .Create<communicate::Responder>(addrReqRep);
+            if (responder == nullptr) {
                 success = false;
             } else {
                 if (!responder->StartResponse(procResp)) {
                     success = false;
                 }
             }
-            // !!----- FALL THROUGH -----!!
-            // The server is also a client!
-            #if ((__cplusplus >= 201703L) ||\
-                (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L))
             [[fallthrough]];
-            #endif
 
         case Role::Client:
-            subscriber = Communicator().CreateSubscriber(addrPubSub);
-            if (Communicator().IsInstInvalid(subscriber)) {
+            subscriber = communicate::CommunicateContext::GetReference()
+                .Create<communicate::Subscriber>(addrPubSub);
+            if (subscriber == nullptr) {
                 success = false;
             } else {
-                int timeout = subscriber->SetTimeout(RpcTimeout);
-                if (timeout != RpcTimeout) {
-                    success = false;
-                }
-                subscriber->Subscribe("");
+                subscriber->Subscribe(""); // All functions.
                 if (!subscriber->StartReceive(procSubCb, procSub)) {
                     success = false;
                 }
             }
-            requester = Communicator().CreateRequester(addrReqRep);
-            if (Communicator().IsInstInvalid(requester)) {
+            requester = communicate::CommunicateContext::GetReference()
+                .Create<communicate::Requester>(addrReqRep);
+            if (requester == nullptr) {
                 success = false;
             } else {
                 int timeout = requester->SetTimeout(RpcTimeout);
@@ -115,6 +105,7 @@ public:
             }
             break;
         }
+
         return success;
     }
 
@@ -125,7 +116,7 @@ public:
         }
 
         bool success = true;
-        if (responder) { // [Server]
+        if (responder != nullptr) { // [Server]
             // => Only Server role has it.
             if (!responder->StopResponse() ||
                 !responder->WaitResponse() ||
@@ -133,7 +124,7 @@ public:
                 success = false;
             }
         }
-        if (subscriber) { // [Client]
+        if (subscriber != nullptr) { // [Client]
             // => Both Server and Client role have it.
             if (!subscriber->StopReceive() ||
                 !subscriber->WaitReceive() ||
@@ -142,25 +133,21 @@ public:
             }
         }
 
-        if (!Communicator().IsInstInvalid(responder)) {
-            Communicator().DestroyInstance(
-                Communicator().MakeInstValue(responder));
-            Communicator().ResetInstInvalid(responder);
+        if (responder != nullptr) {
+            communicate::CommunicateContext::GetReference().Destroy(responder);
+            responder = nullptr;
         }
-        if (!Communicator().IsInstInvalid(requester)) {
-            Communicator().DestroyInstance(
-                Communicator().MakeInstValue(requester));
-            Communicator().ResetInstInvalid(requester);
+        if (requester != nullptr) {
+            communicate::CommunicateContext::GetReference().Destroy(requester);
+            requester = nullptr;
         }
-        if (!Communicator().IsInstInvalid(publisher)) {
-            Communicator().DestroyInstance(
-                Communicator().MakeInstValue(publisher));
-            Communicator().ResetInstInvalid(publisher);
+        if (publisher != nullptr) {
+            communicate::CommunicateContext::GetReference().Destroy(publisher);
+            publisher = nullptr;
         }
-        if (!Communicator().IsInstInvalid(subscriber)) {
-            Communicator().DestroyInstance(
-                Communicator().MakeInstValue(subscriber));
-            Communicator().ResetInstInvalid(subscriber);
+        if (subscriber != nullptr) {
+            communicate::CommunicateContext::GetReference().Destroy(subscriber);
+            subscriber = nullptr;
         }
 
         role = Role::None;
@@ -200,7 +187,7 @@ public:
             wrapper = std::make_tuple(args...);
 
         std::string request;
-        fsCfn.Serialize(request, name, wrapper);
+        nbsCfn.Serialize(request, name, wrapper);
 
         std::string respond;
         switch (requester->Request(request, respond)) {
@@ -223,7 +210,7 @@ public:
 
         std::string retFuncName;
         rpc::RpcReturnCode retReturnCode;
-        fsCfn.Deserialize(respond, retFuncName, retReturnCode);
+        nbsCfn.Deserialize(respond, retFuncName, retReturnCode);
         // Function name mismatch, may be out-of-order calls occurred.
         if (retFuncName != name) {
             return rpc::RpcCallError::FunctionNameMismatch;
@@ -247,13 +234,13 @@ protected:
     void ResponseProcess(const std::string& request, std::string& respond)
     {
         std::string funcName;
-        fsRep.Deserialize(request, funcName);
+        nbsRep.Deserialize(request, funcName);
         auto funcIter = rpcs.find(funcName);
         if (funcIter != rpcs.end()) {
             publisher->Publish(funcName, request); // publish to all clients
-            fsRep.Serialize(respond, funcName, rpc::RpcReturnCode::Success);
+            nbsRep.Serialize(respond, funcName, rpc::RpcReturnCode::Success);
         } else {
-            fsRep.Serialize(respond, funcName, rpc::RpcReturnCode::FunctionNotFound);
+            nbsRep.Serialize(respond, funcName, rpc::RpcReturnCode::FunctionNotFound);
         }
     } // ResponseProcess: Server(ExecFunc), running in responder thread.
 
@@ -301,7 +288,7 @@ protected:
     {
         std::string funcName;
         rpc::RpcFuncArgsWrapper<typename std::decay<Args>::type...> funcArgs;
-        fsSub.Deserialize(data, funcName, funcArgs);
+        nbsSub.Deserialize(data, funcName, funcArgs);
         CallInvoke(func, funcArgs);
     }
 
@@ -323,7 +310,7 @@ protected:
     }
 
 private:
-    static constexpr int RpcTimeout = 1000; // 1s (Request and Subscribe)
+    static constexpr int RpcTimeout = 1000; // 1s (For Requester)
 
     int receiveTimeoutCounter = 0; // subscriber receive timeout [Client]
     std::function<void(int)> receiveTimeoutCountCallback;     // [Client]
@@ -331,26 +318,27 @@ private:
     std::unordered_map<std::string, // function name
         std::function<void(const std::string&)>> rpcs;
 
-    serializer::FunctionSerializer fsRep; // [Server]
-    serializer::FunctionSerializer fsSub; // [Client]
-    serializer::FunctionSerializer fsCfn; // [Client]
+    serialize::NetBinSerializer nbsRep; // [Server]
+    serialize::NetBinSerializer nbsSub; // [Client]
+    serialize::NetBinSerializer nbsCfn; // [Client]
 
-    communicator::ResponderInst  responder;  // [Server]
-    communicator::RequesterInst  requester;  // [Client]
+    communicate::Responder* responder = nullptr; // [Server]
+    communicate::Requester* requester = nullptr; // [Client]
 
-    communicator::PublisherInst  publisher;  // [Server]
-    communicator::SubscriberInst subscriber; // [Client]
+    communicate::Publisher*  publisher  = nullptr; // [Server]
+    communicate::Subscriber* subscriber = nullptr; // [Client]
 
-    // params: request, response, process for responder  [Server]
+    // params: request, response, process for responder   [Server]
     std::function<void(const std::string&, std::string&)> procResp;
-    // params: envelope, content, process for subscriber [Client]
-    std::function<void(const std::string&, const std::string&)> procSub;
+    // params: envelope, contents, process for subscriber [Client]
+    std::function<void(const std::string&, const std::vector<std::string>&)> procSub;
     // params: received successfully or not, process for subscriber callback.
-    std::function<void(bool)> procSubCb;              // [Client]
+    std::function<void(bool)> procSubCb;               // [Client]
 
     Role role = Role::None;
     std::string addrReqRep;
     std::string addrPubSub;
 };
 
+}
 }

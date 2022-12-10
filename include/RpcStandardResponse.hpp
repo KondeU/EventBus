@@ -1,33 +1,31 @@
 #pragma once
 
-#include "MultiServerSupportBase.hpp"
-#include "serializer/FunctionSerializer.hpp"
+#include "Serializer.hpp"
+#include "CommunicateContext.hpp"
 #include "RpcBasicTemplate.hpp"
 
-namespace tirpc {
+namespace au {
+namespace rpc {
 
-class RpcProcessResponse : public MultiServerSupportBase {
+class RpcStandardResponse {
 public:
-    RpcProcessResponse()
+    RpcStandardResponse()
     {
-        Communicator().ResetInstInvalid(responder);
-
         process = // NB: Caution that the life cycle of process!
-        [this](const std::string& request, std::string& respond)
-        {
+        [this](const std::string& request, std::string& respond) {
             ExecFunc(request, respond);
         };
     }
 
     bool StartProcess(const std::string& selfIp, int selfPort)
     {
-        if (!Communicator().IsInstInvalid(responder)) {
+        if (responder != nullptr) {
             return false;
         }
 
-        responder = Communicator().CreateResponder(
-            selfIp + ":" + std::to_string(selfPort));
-        if (Communicator().IsInstInvalid(responder)) {
+        responder = communicate::CommunicateContext::GetReference()
+            .Create<communicate::Responder>(selfIp + ":" + std::to_string(selfPort));
+        if (responder == nullptr) {
             return false;
         }
 
@@ -40,7 +38,7 @@ public:
 
     bool StopProcess()
     {
-        if (Communicator().IsInstInvalid(responder)) {
+        if (responder == nullptr) {
             return false;
         }
 
@@ -50,9 +48,9 @@ public:
             return false;
         }
 
-        Communicator().DestroyInstance(Communicator().MakeInstValue(responder));
-        Communicator().ResetInstInvalid(responder);
+        communicate::CommunicateContext::GetReference().Destroy(responder);
 
+        responder = nullptr;
         return true;
     }
 
@@ -176,8 +174,9 @@ private:
         void(const std::string&, std::string&)>> rpcs;
     std::function<void(const std::string&, std::string&)> process;
 
-    serializer::FunctionSerializer serializer;
-    communicator::ResponderInst responder;
+    serialize::NetBinSerializer serializer;
+    communicate::Responder* responder = nullptr;
 };
 
+}
 }

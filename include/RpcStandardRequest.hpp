@@ -1,27 +1,24 @@
 #pragma once
 
-#include "MultiServerSupportBase.hpp"
-#include "serializer/FunctionSerializer.hpp"
+#include "Serializer.hpp"
+#include "CommunicateContext.hpp"
 #include "RpcBasicTemplate.hpp"
 
-namespace tirpc {
+namespace au {
+namespace rpc {
 
-class RpcProcessRequest : public MultiServerSupportBase {
+class RpcStandardRequest {
 public:
-    RpcProcessRequest()
-    {
-        Communicator().ResetInstInvalid(requester);
-    }
-
     bool ConnectNetwork(const std::string& serverIp, int serverPort)
     {
-        if (!Communicator().IsInstInvalid(requester)) {
+        if (requester != nullptr) {
             return false;
         }
 
         std::string addr = serverIp + ":" + std::to_string(serverPort);
-        requester = Communicator().CreateRequester(addr);
-        if (Communicator().IsInstInvalid(requester)) {
+        requester = communicate::CommunicateContext::GetReference()
+            .Create<communicate::Requester>(addr);
+        if (requester == nullptr) {
             return false;
         }
 
@@ -37,13 +34,13 @@ public:
 
     bool DisconnectNetwork()
     {
-        if (Communicator().IsInstInvalid(requester)) {
+        if (requester == nullptr) {
             return false;
         }
 
-        Communicator().DestroyInstance(Communicator().MakeInstValue(requester));
-        Communicator().ResetInstInvalid(requester);
+        communicate::CommunicateContext::GetReference().Destroy(requester);
 
+        requester = nullptr;
         return true;
     }
 
@@ -81,10 +78,9 @@ public:
                 //     as in the ConnectNetwork and DisconnectNetwork
                 //     functions. We assumed that there would be no
                 //     problems in this short time.
-                Communicator().DestroyInstance(
-                    Communicator().MakeInstValue(requester));
-                Communicator().ResetInstInvalid(requester);
-                requester = Communicator().CreateRequester(serverAddress);
+                communicate::CommunicateContext::GetReference().Destroy(requester);
+                requester = communicate::CommunicateContext::GetReference()
+                    .Create<communicate::Requester>(serverAddress);
                 requester->SetTimeout(RpcTimeout);
             }
             return { error, {} };
@@ -118,9 +114,9 @@ protected:
         const std::string& request, std::string& respond)
     {
         switch (requester->Request(request, respond)) {
-        case communicator::CommunicationCode::Success:
+        case communicate::CommunicationCode::Success:
             return rpc::RpcCallError::Success; // Only successfully received.
-        case communicator::CommunicationCode::ReceiveTimeout:
+        case communicate::CommunicationCode::ReceiveTimeout:
             return rpc::RpcCallError::NetworkTimeout;
         }
         // It is not possible to run here. Only used to avoid compilation warning.
@@ -133,8 +129,9 @@ private:
     bool autoReconnectNetwork = true;
     std::string serverAddress;
 
-    serializer::FunctionSerializer serializer;
-    communicator::RequesterInst requester;
+    serialize::NetBinSerializer serializer;
+    communicate::Requester* requester = nullptr;
 };
 
+}
 }
