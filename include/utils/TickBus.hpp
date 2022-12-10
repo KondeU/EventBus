@@ -1,15 +1,17 @@
 #pragma once
 
-#include "TiBus.hpp"
+#include "EventBus.hpp"
+
+namespace au {
 
 class TickBus;
 
-class TickBusEvent : public tibus::BusEvent<TickBus> {
+class TickBusEvent : public ebus::BusEvent<TickBus> {
 public:
     virtual void OnTick() = 0;
 };
 
-class TickBus : public tibus::BusTrait<TickBus, TickBusEvent> {
+class TickBus : public ebus::BusTrait<TickBus, TickBusEvent> {
 public:
     void OnInit() override
     {
@@ -17,3 +19,5 @@ public:
         DefineFunction("OnTick", &TickBusEvent::OnTick);
     }
 };
+
+}

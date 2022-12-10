@@ -2,6 +2,8 @@
 
 #include "TickBus.hpp"
 
+namespace au {
+
 class ApplicationFramework {
 public:
     ApplicationFramework()
@@ -78,18 +80,18 @@ public:
             return false;
         }
 
-        tibus::BusManager::BusGroupLevel level =
-            tibus::BusManager::BusGroupLevel::InProcess;
+        ebus::BusManager::BusGroupLevel level =
+            ebus::BusManager::BusGroupLevel::InProcess;
         std::string levelConfig = GetConfig("level");
         if (levelConfig == "H_B") {
-            level = tibus::BusManager::BusGroupLevel::MultiHost;
+            level = ebus::BusManager::BusGroupLevel::MultiHost;
         } else if (levelConfig == "L_B") {
-            level = tibus::BusManager::BusGroupLevel::LocalHost;
+            level = ebus::BusManager::BusGroupLevel::LocalHost;
         }
 
-        tibus::BusManager::BusInfo info;
+        ebus::BusManager::BusInfo info;
         info.h.emplace_back(
-            tibus::BusManager::BusInfo::HostsBrokerInfo {
+            ebus::BusManager::BusInfo::HostsBrokerInfo {
             GetConfig("hbip"),    // --> info.h[0].ip = GetConfig("hbip")
             GetConfigInt("hbp1"), // --> info.h[0].sport = GetConfigInt("hbp1")
             GetConfigInt("hbp2")  // --> info.h[0].pport = GetConfigInt("hbp2")
@@ -97,7 +99,7 @@ public:
         info.l.sport = GetConfigInt("lbp1");
         info.l.pport = GetConfigInt("lbp2");
 
-        if (!tibus::BusManager::GetReference().Start(level, info)) {
+        if (!ebus::BusManager::GetReference().Start(level, info)) {
             OnExit();
             loop = false;
             return false;
@@ -124,7 +126,7 @@ public:
                 return false;
             }
 
-            tibus::BusManager::GetReference().ExecuteReceivedEvents();
+            ebus::BusManager::GetReference().ExecuteReceivedEvents();
         }
 
         if (!OnAfterLoop()) {
@@ -132,7 +134,7 @@ public:
             return false;
         }
 
-        if (!tibus::BusManager::GetReference().Stop()) {
+        if (!ebus::BusManager::GetReference().Stop()) {
             OnExit();
             return false;
         }
@@ -169,3 +171,5 @@ private:
     bool loop = false;
     std::unordered_map<std::string, std::string> configs;
 };
+
+}
