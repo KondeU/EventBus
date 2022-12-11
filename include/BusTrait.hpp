@@ -17,7 +17,7 @@ public:
         if (handler == handlers.end()) {
             return {}; // User logic error, actor not found!
         }
-        return (handler.second->*func)(args...);
+        return (handler->second->*func)(args...);
     }
 
     template <typename Actor, class ...Args>
@@ -28,7 +28,7 @@ public:
         if (handler == handlers.end()) {
             return; // User logic error, actor not found!
         }
-        (handler.second->*func)(args...);
+        (handler->second->*func)(args...);
     }
 
     template <class ...Args>

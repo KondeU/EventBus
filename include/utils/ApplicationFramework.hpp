@@ -12,8 +12,8 @@ public:
         configs["hbip"] = "127.0.0.1"; // Default hosts broker ip
 
         // Default hosts broker configuration
-        configs["hbp1"] = "6083"; // Default hosts broker port 1 (Sub H_B)
-        configs["hbp2"] = "6084"; // Default hosts broker port 2 (Pub H_B)
+        configs["hbp1"] = "6091"; // Default hosts broker port 1 (Sub H_B)
+        configs["hbp2"] = "6092"; // Default hosts broker port 2 (Pub H_B)
 
         // Default local broker configuration
         configs["lbp1"] = "6081"; // Default local broker port 1 (Sub L_B)

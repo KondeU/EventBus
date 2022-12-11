@@ -61,11 +61,15 @@ public:
                 MultiHostBusGroup::GetReference().Start(
                     info.h[0].ip, info.h[0].sport, info.h[0].pport);
             }
+            #if __cplusplus >= 201703L || _MSVC_LANG >= 201703L
             [[fallthrough]];
+            #endif
         case BusGroupLevel::LocalHost:
             LocalHostBusGroup::GetReference().Start(
                 info.l.sport, info.l.pport);
+            #if __cplusplus >= 201703L || _MSVC_LANG >= 201703L
             [[fallthrough]];
+            #endif
         case BusGroupLevel::InProcess:
             break; // Nothing to do.
         }

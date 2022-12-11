@@ -80,8 +80,10 @@ else()
 endif()
 
 if(WIN32)
+  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib/libzmq.lib DESTINATION library)
   install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.dll DESTINATION runtime)
 else()
+  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib/libzmq.a DESTINATION library)
   install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.so DESTINATION runtime)
 endif()
 

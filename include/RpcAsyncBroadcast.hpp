@@ -80,7 +80,9 @@ public:
                     success = false;
                 }
             }
+            #if __cplusplus >= 201703L || _MSVC_LANG >= 201703L
             [[fallthrough]];
+            #endif
 
         case Role::Client:
             subscriber = communicate::CommunicateContext::GetReference()
