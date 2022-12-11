@@ -1,3 +1,3 @@
-# TiBus
+# EventBus
 
 TiEngine/TiBus -> KondeU/EventBus

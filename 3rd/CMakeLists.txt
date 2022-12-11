@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
-project(open_source)
+project(event_bus_open_source)
 
 set(OPEN_SOURCE_WRAPPERS open_source.cpp)
 add_library(${PROJECT_NAME} STATIC ${OPEN_SOURCE_WRAPPERS})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/.. FILES ${OPEN_SOURCE_WRAPPERS})
+
+install_artifact(${PROJECT_NAME})
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
   set(THIRD_PARTY_ARCHITECTURE Win32)
