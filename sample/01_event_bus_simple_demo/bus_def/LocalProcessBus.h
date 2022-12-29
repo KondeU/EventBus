@@ -18,3 +18,5 @@ public:
         DefineFunction("OnLocalProcessTest", &LocalProcessBusEvent::OnLocalProcessTest);
     }
 };
+
+BUS_REF(LocalProcessBus);

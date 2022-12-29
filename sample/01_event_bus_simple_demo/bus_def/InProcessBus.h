@@ -20,3 +20,5 @@ public:
         // the return value is only valid when using EventNow.
     }
 };
+
+BUS_REF(InProcessBus);

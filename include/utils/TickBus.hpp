@@ -20,4 +20,6 @@ public:
     }
 };
 
+BUS_REF(TickBus);
+
 }

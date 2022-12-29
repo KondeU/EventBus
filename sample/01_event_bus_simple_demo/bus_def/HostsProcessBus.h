@@ -18,3 +18,5 @@ public:
         DefineFunction("OnHostsProcessTest", &HostsProcessBusEvent::OnHostsProcessTest);
     }
 };
+
+BUS_REF(HostsProcessBus);
