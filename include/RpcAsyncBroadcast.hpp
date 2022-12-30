@@ -196,17 +196,15 @@ public:
         case communicate::CommunicationCode::Success:
             break; // Success means the network communication is normal.
         case communicate::CommunicationCode::ReceiveTimeout:
-            // TODO: Automatic reconnect network when network timeout.
-            //// Network timeout and disconnect network:
-            //communicate::CommunicateContext::GetReference().Destroy(requester);
-            //// Network timeout and reconnect network:
-            //requester = communicate::CommunicateContext::GetReference()
-            //    .Create<communicate::Requester>(addrReqRep);
-            //requester->SetTimeout(RpcTimeout);
-            //// NB: Here we did not do very detailed verification as
-            ////     in the Stop and Start functions. We assumed that
-            ////     there would be no problems in this short time...
-            //// Finally return NetworkTimeout to notify the caller.
+            // Reconnect network automatically when network timeout.
+            communicate::CommunicateContext::GetReference().Destroy(requester);
+            requester = communicate::CommunicateContext::GetReference()
+                .Create<communicate::Requester>(addrReqRep);
+            requester->SetTimeout(RpcTimeout);
+            // NB: Here we did not do very detailed verification as
+            //     in the Stop and Start functions. We assumed that
+            //     there would be no problems in this short time...
+            // Finally return NetworkTimeout to notify the caller.
             return rpc::RpcCallError::NetworkTimeout;
         }
 

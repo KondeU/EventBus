@@ -44,14 +44,6 @@ public:
         return true;
     }
 
-    void SetAutoReconnectNetwork(bool enable)
-    {
-        // Reconnect network automatically when
-        // network timeout if enable is true.
-        // See CallFunc in detail.
-        autoReconnectNetwork = enable;
-    }
-
     template <typename T>
     struct CallReturn {
         rpc::RpcCallError error;
@@ -77,7 +69,7 @@ public:
                 // NB: Here we did not do very detailed verification
                 //     as in the ConnectNetwork and DisconnectNetwork
                 //     functions. We assumed that there would be no
-                //     problems in this short time.
+                //     problems in this short time...
                 communicate::CommunicateContext::GetReference().Destroy(requester);
                 requester = communicate::CommunicateContext::GetReference()
                     .Create<communicate::Requester>(serverAddress);
