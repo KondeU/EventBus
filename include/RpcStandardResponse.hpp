@@ -57,14 +57,14 @@ public:
     template <typename Func>
     inline void BindFunc(const std::string& name, Func func)
     {
-        rpcs[name] = std::bind(&RpcProcessResponse::CallProxy<Func>, this,
+        rpcs[name] = std::bind(&RpcStandardResponse::CallProxy<Func>, this,
             func, std::placeholders::_1, std::placeholders::_2);
     }
 
     template <typename CFunc, typename CType>
     inline void BindFunc(const std::string& name, CFunc func, CType& impl)
     {
-        rpcs[name] = std::bind(&RpcProcessResponse::CallProxy<CFunc, CType>, this,
+        rpcs[name] = std::bind(&RpcStandardResponse::CallProxy<CFunc, CType>, this,
             func, &impl, std::placeholders::_1, std::placeholders::_2);
     }
 
