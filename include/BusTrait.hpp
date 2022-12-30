@@ -3,7 +3,8 @@
 #include "BusManager.hpp"
 #include "BusHandler.hpp"
 
-namespace tibus {
+namespace au {
+namespace ebus {
 
 template <typename Bus, typename Event, typename Group = InProcessBusGroup>
 class BusTrait : public BusTraitBase, public common::GlobalSingleton<Bus> {
@@ -16,7 +17,7 @@ public:
         if (handler == handlers.end()) {
             return {}; // User logic error, actor not found!
         }
-        return (handler.second->*func)(args...);
+        return (handler->second->*func)(args...);
     }
 
     template <typename Actor, class ...Args>
@@ -27,7 +28,7 @@ public:
         if (handler == handlers.end()) {
             return; // User logic error, actor not found!
         }
-        (handler.second->*func)(args...);
+        (handler->second->*func)(args...);
     }
 
     template <class ...Args>
@@ -110,4 +111,5 @@ private:
     std::unordered_map<uintptr_t*, std::string> functionsName; // _vptr <-> functionsName
 };
 
+}
 }

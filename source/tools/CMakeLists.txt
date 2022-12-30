@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.14)
+project(tools)
+
+add_subdirectory(local_broker_core)
+add_subdirectory(local_broker_simple)
+add_subdirectory(hosts_broker_core)
+add_subdirectory(hosts_broker_simple)
+add_subdirectory(encryption_keygen_core)
+add_subdirectory(encryption_keygen_simple)

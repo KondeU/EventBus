@@ -1,13 +1,13 @@
 #pragma once
 
-#include "common/GlobalSingleton.hpp"
+#include "GlobalSingleton.hpp"
 #include "Requester.hpp"
 #include "Responder.hpp"
 #include "Subscriber.hpp"
 #include "Publisher.hpp"
 #include "Broker.hpp"
 
-namespace tibus {
+namespace au {
 namespace communicate {
 
 class CommunicateContext : public common::GlobalSingleton<CommunicateContext> {

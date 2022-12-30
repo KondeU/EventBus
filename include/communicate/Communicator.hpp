@@ -2,7 +2,7 @@
 
 #include <zmq.hpp>
 
-namespace tibus {
+namespace au {
 namespace communicate {
 
 class Communicator {

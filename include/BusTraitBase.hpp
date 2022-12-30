@@ -1,6 +1,7 @@
 #pragma once
 
-namespace tibus {
+namespace au {
+namespace ebus {
 
 class BusTraitBase {
 public:
@@ -10,4 +11,5 @@ protected:
     BusTraitBase() = default;
 };
 
+}
 }

@@ -2,7 +2,7 @@
 
 #include <functional>
 
-namespace tibus {
+namespace au {
 namespace common {
 
 #if _MSC_VER

@@ -2,7 +2,8 @@
 
 #include "BusActorBase.hpp"
 
-namespace tibus {
+namespace au {
+namespace ebus {
 
 template <typename ...Handlers>
 class BusActor : public BusActorBase, public Handlers... {
@@ -46,4 +47,5 @@ protected:
     }
 };
 
+}
 }

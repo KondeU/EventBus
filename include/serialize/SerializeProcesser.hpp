@@ -2,13 +2,16 @@
 
 #include "SerializeHeaders.hpp"
 
-namespace tibus {
+namespace au {
 namespace serialize {
 
 // An empty base class, only
 // be used for type checking.
 class SerializeProcesser {};
 
+template <
+    typename InputArchive = cereal::PortableBinaryInputArchive,
+    typename OutputArchive = cereal::PortableBinaryOutputArchive>
 class CerealSerializeProcesser : public SerializeProcesser {
 public:
     template <class ...Args>
@@ -49,9 +52,6 @@ public:
     }
 
 private:
-    using OutputArchive = cereal::PortableBinaryOutputArchive;
-    using InputArchive = cereal::PortableBinaryInputArchive;
-
     std::stringstream ss;
 };
 
@@ -140,19 +140,23 @@ private:
 //      double c;
 //  };
 
-#define SERIALIZE_METHOD_CEREAL(...)  \
-template <class Archive>              \
-void serialize(Archive& archive)      \
-{                                     \
-    archive(__VA_ARGS__);             \
+#define SERIALIZE_METHOD_CEREAL(...) \
+template <class Archive>             \
+void serialize(Archive& archive)     \
+{                                    \
+    archive(__VA_ARGS__);            \
 }
+#define GEN_NAME_VALUE_PAIR CEREAL_NVP
 
 #define SERIALIZE_METHOD_MSGPACK(...) \
 MSGPACK_DEFINE(__VA_ARGS__)
 
-#define SERIALIZE_METHOD(...)         \
-SERIALIZE_METHOD_CEREAL (...)         \
-SERIALIZE_METHOD_MSGPACK(...)
+#define GEN_SERIALIZE_METHOD SERIALIZE_METHOD_CEREAL
+#define MSG_SERIALIZE_METHOD SERIALIZE_METHOD_MSGPACK
+
+#define SERIALIZE_METHOD(...)     \
+GEN_SERIALIZE_METHOD(__VA_ARGS__) \
+MSG_SERIALIZE_METHOD(__VA_ARGS__)
 ////////////////////////////////////////////////////////////
 
 }

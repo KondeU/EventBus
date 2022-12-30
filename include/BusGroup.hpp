@@ -1,13 +1,14 @@
 #pragma once
 
 #include <mutex>
-#include "common/Any.hpp"
-#include "common/Binder.hpp"
-#include "serialize/Serializer.hpp"
-#include "communicate/CommunicateContext.hpp"
+#include "Any.hpp"
+#include "Binder.hpp"
+#include "Serializer.hpp"
+#include "CommunicateContext.hpp"
 #include "BusTraitBase.hpp"
 
-namespace tibus {
+namespace au {
+namespace ebus {
 
 class BusGroup {
 public:
@@ -16,11 +17,6 @@ public:
 
 class BusGroupEx : public BusGroup {
 public:
-    // Use this type to determine the serialization processor: It
-    // could be CerealSerializeProcesser, MsgpackSerializeProcesser
-    // or custom serialization processor.
-    using SerializeProcesser = serialize::CerealSerializeProcesser;
-
     void BindBus(const std::string& name, const BusTraitBase& bus)
     {
         buses[&bus] = name;
@@ -125,8 +121,8 @@ private:
     std::unordered_map<std::string, std::pair<const BusTraitBase*, FunctionHashmap>> functions;
     std::unordered_map<const BusTraitBase*, std::string> buses;
 
-    serialize::Serializer<SerializeProcesser> sin;
-    serialize::Serializer<SerializeProcesser> sout;
+    serialize::NetBinSerializer sin;
+    serialize::NetBinSerializer sout;
 
     std::vector<std::function<void()>> actions;
     std::mutex mutex; // actions' mutex
@@ -299,8 +295,7 @@ public:
 private:
     // PLS see BusGroupEx::FunctionHashmap
     struct FunctionHashmap {
-        using Type = std::unordered_map<std::string,
-            std::function<void(const common::Any&)>>;
+        using Type = std::unordered_map<std::string, std::function<void(const common::Any&)>>;
 
         operator Type& ()
         {
@@ -364,4 +359,5 @@ private:
     std::string ipOfHostsBroker;
 };
 
+}
 }

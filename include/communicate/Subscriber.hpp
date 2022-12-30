@@ -1,25 +1,30 @@
 #pragma once
 
 #include <thread>
+#include <unordered_set>
 #include <zmq_addon.hpp>
 #include "Communicator.hpp"
 
-namespace tibus {
+namespace au {
 namespace communicate {
 
 class Subscriber : public Communicator {
 public:
     void Subscribe(const std::string& envelope)
     {
-        socket.set(zmq::sockopt::subscribe, envelope);
+        if (topics.emplace(envelope).second) {
+            socket.set(zmq::sockopt::subscribe, envelope);
+        }
     }
 
     void Unsubscribe(const std::string& envelope)
     {
-        socket.set(zmq::sockopt::unsubscribe, envelope);
+        if (topics.erase(envelope) > 0) {
+            socket.set(zmq::sockopt::unsubscribe, envelope);
+        }
     }
 
-    bool StartReceive(std::function<void(bool)> callback, // bool: receive successfully?
+    bool StartReceive(std::function<void(bool)> callback, // bool: is current timeslice received?
         std::function<void(const std::string&, const std::vector<std::string>&)> process)
     {
         if (subscribes.find(subKey) != subscribes.end()) {
@@ -120,6 +125,8 @@ private:
 
     zmq::context_t& context;
     zmq::socket_t socket;
+
+    std::unordered_set<std::string> topics;
 
     std::unordered_map<std::string, std::pair<std::thread, bool>> subscribes;
     const std::string subKey = "subscribe";

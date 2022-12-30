@@ -1,6 +1,7 @@
 #pragma once
 
-namespace tibus {
+namespace au {
+namespace ebus {
 
 template <typename Bus>
 class BusEvent {
@@ -13,4 +14,5 @@ protected:
     }
 };
 
+}
 }

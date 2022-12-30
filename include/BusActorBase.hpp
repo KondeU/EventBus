@@ -2,7 +2,8 @@
 
 #include <string>
 
-namespace tibus {
+namespace au {
+namespace ebus {
 
 class BusActorBase {
 public:
@@ -15,4 +16,5 @@ protected:
     BusActorBase() = default;
 };
 
+}
 }

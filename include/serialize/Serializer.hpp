@@ -2,10 +2,10 @@
 
 #include "SerializeProcesser.hpp"
 
-namespace tibus {
+namespace au {
 namespace serialize {
 
-template <typename Processor = CerealSerializeProcesser>
+template <typename Processor>
 // Use the template Processor type instead of
 // virtual function implementations, because that
 // virtual function cannot implement the scenarios
@@ -34,6 +34,16 @@ private:
 
     Processor processor;
 };
+
+using XmlSerializer = Serializer<CerealSerializeProcesser<
+    cereal::XMLInputArchive, cereal::XMLOutputArchive>>;
+using JsonSerializer = Serializer<CerealSerializeProcesser<
+    cereal::JSONInputArchive, cereal::JSONOutputArchive>>;
+using BinSerializer = Serializer<CerealSerializeProcesser<
+    cereal::BinaryInputArchive, cereal::BinaryOutputArchive>>;
+using NetBinSerializer = Serializer<CerealSerializeProcesser<
+    cereal::PortableBinaryInputArchive, cereal::PortableBinaryOutputArchive>>;
+using MsgBinSerializer = Serializer<MsgpackSerializeProcesser>;
 
 }
 }

@@ -3,7 +3,7 @@
 #include "Communicator.hpp"
 #include "CommunicationCode.hpp"
 
-namespace tibus {
+namespace au {
 namespace communicate {
 
 class Requester : public Communicator {
