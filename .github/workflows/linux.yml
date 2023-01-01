@@ -4,12 +4,13 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: build EventBus with ubuntu x64
+    - name: build EventBus on ubuntu
       shell: bash
       run: |
         chmod 777 build.sh
