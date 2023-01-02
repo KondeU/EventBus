@@ -137,11 +137,11 @@ endif()
 add_custom_target(unzip_global_singleton ALL)
 add_custom_command(TARGET unzip_global_singleton PRE_BUILD
   COMMENT "unpacking GlobalSingleton, compile and install it."
-  DEPENDS GlobalSingleton-1.0.zip
+  DEPENDS GlobalSingleton-1.1.zip
   WORKING_DIRECTORY ${THIRD_PARTY_INTERNAL}
     COMMAND ${CMAKE_COMMAND} -E remove_directory gsgt
-    COMMAND ${CMAKE_COMMAND} -E tar xzf GlobalSingleton-1.0.zip
-    COMMAND ${CMAKE_COMMAND} -E rename GlobalSingleton-1.0 gsgt
+    COMMAND ${CMAKE_COMMAND} -E tar xzf GlobalSingleton-1.1.zip
+    COMMAND ${CMAKE_COMMAND} -E rename GlobalSingleton-1.1 gsgt
     COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S gsgt -B gsgt/build ${MSVC_ARCH}
     COMMAND ${CMAKE_COMMAND} --build gsgt/build --config Release --parallel
     COMMAND ${CMAKE_COMMAND} --install gsgt/build --prefix gsgt/output --config Release
