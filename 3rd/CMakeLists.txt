@@ -78,19 +78,34 @@ add_custom_command(TARGET unzip_zeromq PRE_BUILD
 target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/zeromq/output/include)
 install_external_open_source_headers(${THIRD_PARTY_EXTERNAL}/zeromq/output/include/)
 
-target_link_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib)
 if(MSVC)
+  set(OUTPUT_ZMQ_LIB_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib)
+  target_link_directories(${PROJECT_NAME} PUBLIC ${OUTPUT_ZMQ_LIB_DIR})
   target_link_libraries(${PROJECT_NAME} PUBLIC libzmq)
 else()
+  if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    unset(OUTPUT_ZMQ_LIB_SUFFIX)
+  elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(OUTPUT_ZMQ_LIB_SUFFIX 64)
+  endif()
+  set(OUTPUT_ZMQ_LIB_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib${OUTPUT_ZMQ_LIB_SUFFIX})
+  target_link_directories(${PROJECT_NAME} PUBLIC ${OUTPUT_ZMQ_LIB_DIR})
   target_link_libraries(${PROJECT_NAME} PUBLIC zmq)
 endif()
 
 if(WIN32)
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib/libzmq.lib DESTINATION library)
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.dll DESTINATION runtime)
+  install(FILES ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/libzmq.lib DESTINATION library)
+  install(FILES ${THIRD_PARTY_EXTERNAL}/zeromq/output/bin/libzmq.dll DESTINATION runtime)
 else()
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib/libzmq.a DESTINATION library)
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.so DESTINATION runtime)
+  # https://stackoverflow.com/questions/55451084/why-does-installdirectory-files-matching-pattern-copy-empty-director
+  install(DIRECTORY ${OUTPUT_ZMQ_LIB_DIR}/ DESTINATION library FILES_MATCHING REGEX "libzmq.so*")
+  install(DIRECTORY ${OUTPUT_ZMQ_LIB_DIR}/ DESTINATION runtime FILES_MATCHING REGEX "libzmq.so*")
+endif()
+
+if(WIN32)
+  set(OUTPUT_ZMQ_DEP_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/CMake)
+else()
+  set(OUTPUT_ZMQ_DEP_DIR ${OUTPUT_ZMQ_LIB_DIR}/cmake/ZeroMQ)
 endif()
 
 #==============================================================================
@@ -104,7 +119,7 @@ add_custom_command(TARGET unzip_cppzmq PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E tar xzf cppzmq-4.9.0.zip
     COMMAND ${CMAKE_COMMAND} -E rename cppzmq-4.9.0 cppzmq
     COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S cppzmq -B cppzmq/build ${MSVC_ARCH}
-      -DCPPZMQ_BUILD_TESTS=OFF -DZeroMQ_DIR=${THIRD_PARTY_EXTERNAL}/zeromq/output/CMake -Wno-dev
+      -DCPPZMQ_BUILD_TESTS=OFF -DZeroMQ_DIR=${OUTPUT_ZMQ_DEP_DIR} -Wno-dev
     COMMAND ${CMAKE_COMMAND} --build cppzmq/build --config Release --parallel
     COMMAND ${CMAKE_COMMAND} --install cppzmq/build --prefix cppzmq/output --config Release
   VERBATIM)
@@ -134,7 +149,7 @@ endif()
 
 #==============================================================================
 
-add_custom_target(unzip_global_singleton ALL)
+#[[add_custom_target(unzip_global_singleton ALL)
 add_custom_command(TARGET unzip_global_singleton PRE_BUILD
   COMMENT "unpacking GlobalSingleton, compile and install it."
   DEPENDS GlobalSingleton-1.1.zip
@@ -145,7 +160,7 @@ add_custom_command(TARGET unzip_global_singleton PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S gsgt -B gsgt/build ${MSVC_ARCH}
     COMMAND ${CMAKE_COMMAND} --build gsgt/build --config Release --parallel
     COMMAND ${CMAKE_COMMAND} --install gsgt/build --prefix gsgt/output --config Release
-  VERBATIM)
+  VERBATIM)]]#
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_INTERNAL}/gsgt/output/include)
 install(DIRECTORY ${THIRD_PARTY_INTERNAL}/gsgt/output/include/ DESTINATION include/common)
@@ -162,4 +177,4 @@ add_dependencies(${PROJECT_NAME} unzip_cereal)
 add_dependencies(${PROJECT_NAME} unzip_msgpack)
 add_dependencies(${PROJECT_NAME} unzip_cppzmq)
 add_dependencies(unzip_cppzmq unzip_zeromq)
-add_dependencies(${PROJECT_NAME} unzip_global_singleton)
+#add_dependencies(${PROJECT_NAME} unzip_global_singleton)

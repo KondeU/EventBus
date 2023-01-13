@@ -24,7 +24,7 @@ public:
         data = ss.str();
     }
 
-    template <>
+    // template <>
     void Serialize(std::string& data)
     {
         data.clear();
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    template <>
+    // template <>
     void Deserialize(const std::string& data)
     {
         (void)data;
@@ -64,7 +64,7 @@ public:
         data = data.replace(data.begin(), data.end(), sb.data(), sb.size());
     }
 
-    template <>
+    // template <>
     void Serialize(std::string& data)
     {
         data.clear();
@@ -78,7 +78,7 @@ public:
         DeserializeElement(offset, args...);
     }
 
-    template <>
+    // template <>
     void Deserialize(const std::string& data)
     {
         (void)data;

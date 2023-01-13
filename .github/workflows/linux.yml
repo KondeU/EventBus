@@ -13,8 +13,9 @@ jobs:
     - name: build EventBus on ubuntu
       shell: bash
       run: |
-        chmod 777 build.sh
+        chmod 777 build.sh sample/build.sh
         ./build.sh
+        ./sample/build.sh
     - uses: actions/upload-artifact@v3
       with:
         name: EventBus
