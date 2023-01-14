@@ -70,7 +70,7 @@ add_custom_command(TARGET unzip_zeromq PRE_BUILD
     COMMAND patch -p0 < zeromq-4.3.4@0001.patch --binary
     COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S zeromq -B zeromq/build ${MSVC_ARCH}
       -DBUILD_STATIC=OFF -DBUILD_SHARED=ON -DBUILD_TESTS=OFF -DZMQ_BUILD_TESTS=OFF
-      -DWITH_LIBSODIUM=OFF -DENABLE_DRAFTS=OFF -Wno-dev
+      -DWITH_LIBSODIUM=OFF -DENABLE_DRAFTS=OFF -Wno-dev -DCMAKE_INSTALL_LIBDIR=lib
     COMMAND ${CMAKE_COMMAND} --build zeromq/build --config Release --parallel
     COMMAND ${CMAKE_COMMAND} --install zeromq/build --prefix zeromq/output --config Release
   VERBATIM)
@@ -78,18 +78,10 @@ add_custom_command(TARGET unzip_zeromq PRE_BUILD
 target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/zeromq/output/include)
 install_external_open_source_headers(${THIRD_PARTY_EXTERNAL}/zeromq/output/include/)
 
+target_link_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib)
 if(MSVC)
-  set(OUTPUT_ZMQ_LIB_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib)
-  target_link_directories(${PROJECT_NAME} PUBLIC ${OUTPUT_ZMQ_LIB_DIR})
   target_link_libraries(${PROJECT_NAME} PUBLIC libzmq)
 else()
-  if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    unset(OUTPUT_ZMQ_LIB_SUFFIX)
-  elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(OUTPUT_ZMQ_LIB_SUFFIX 64)
-  endif()
-  set(OUTPUT_ZMQ_LIB_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib${OUTPUT_ZMQ_LIB_SUFFIX})
-  target_link_directories(${PROJECT_NAME} PUBLIC ${OUTPUT_ZMQ_LIB_DIR})
   target_link_libraries(${PROJECT_NAME} PUBLIC zmq)
 endif()
 
@@ -98,8 +90,10 @@ if(WIN32)
   install(FILES ${THIRD_PARTY_EXTERNAL}/zeromq/output/bin/libzmq.dll DESTINATION runtime)
 else()
   # https://stackoverflow.com/questions/55451084/why-does-installdirectory-files-matching-pattern-copy-empty-director
-  install(DIRECTORY ${OUTPUT_ZMQ_LIB_DIR}/ DESTINATION library FILES_MATCHING REGEX "libzmq.so*")
-  install(DIRECTORY ${OUTPUT_ZMQ_LIB_DIR}/ DESTINATION runtime FILES_MATCHING REGEX "libzmq.so*")
+  install(DIRECTORY ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/
+    DESTINATION library FILES_MATCHING REGEX "libzmq.so*")
+  install(DIRECTORY ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/
+    DESTINATION runtime FILES_MATCHING REGEX "libzmq.so*")
 endif()
 
 if(WIN32)
