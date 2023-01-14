@@ -49,7 +49,7 @@ public:
             &InProcessBusEvent::OnInProcessTest, counter, std::string("EventQueue"));
 
         LocalProcessBus::GetReference().EventQueue(
-            &LocalProcessBusEvent::OnLocalProcessTest, long long(counter));
+            &LocalProcessBusEvent::OnLocalProcessTest, static_cast<long long>(counter));
 
         HostsProcessBus::GetReference().EventQueue("HandlerDemo", // HandlerDemo see worker2.cpp
             &HostsProcessBusEvent::OnHostsProcessTest, counter, std::to_string(counter));

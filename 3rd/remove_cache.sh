@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 CURRENT_PATH=$(cd "$(dirname "$0")"; pwd)
 
 rm -f ${CURRENT_PATH}/external/patch.exe

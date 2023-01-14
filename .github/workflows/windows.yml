@@ -4,16 +4,19 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ilammy/msvc-dev-cmd@v1
-    - name: build EventBus with windows x64
+    - name: build EventBus on windows
       shell: bash
-      run: ${{github.workspace}}/build.sh
-    - uses: actions/upload-artifact@v2
+      run: |
+        ./build.sh
+        ./sample/build.sh
+    - uses: actions/upload-artifact@v3
       with:
         name: EventBus
-        path: ${{github.workspace}}/output
+        path: ./output

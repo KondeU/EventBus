@@ -1,6 +1,6 @@
 diff -ruN zeromq-4.3.4/CMakeLists.txt ZeroMQ/CMakeLists.txt
 --- zeromq-4.3.4/CMakeLists.txt	2021-01-17 13:18:16.000000000 +0800
-+++ ZeroMQ/CMakeLists.txt	2021-06-18 22:07:35.482107800 +0800
++++ zeromq/CMakeLists.txt	2021-06-18 22:07:35.482107800 +0800
 @@ -1315,11 +1315,11 @@
      set_target_properties(
        libzmq

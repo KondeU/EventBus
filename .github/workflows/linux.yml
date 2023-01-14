@@ -4,15 +4,19 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: build EventBus with ubuntu x64
+    - uses: actions/checkout@v3
+    - name: build EventBus on ubuntu
       shell: bash
-      run: ${{github.workspace}}/build.sh
-    - uses: actions/upload-artifact@v2
+      run: |
+        chmod 777 build.sh sample/build.sh
+        ./build.sh
+        ./sample/build.sh
+    - uses: actions/upload-artifact@v3
       with:
         name: EventBus
-        path: ${{github.workspace}}/output
+        path: ./output

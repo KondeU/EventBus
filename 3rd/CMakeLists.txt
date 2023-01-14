@@ -7,13 +7,21 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/.. FILES ${OPEN_SOURCE_WRAPPERS})
 
 install_artifact(${PROJECT_NAME})
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-  set(THIRD_PARTY_ARCHITECTURE Win32)
-elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(THIRD_PARTY_ARCHITECTURE x64)
-endif()
 set(THIRD_PARTY_EXTERNAL ${CMAKE_CURRENT_SOURCE_DIR}/external)
 set(THIRD_PARTY_INTERNAL ${CMAKE_CURRENT_SOURCE_DIR}/internal)
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  set(THIRD_PARTY_ARCHITECTURE Win32)
+  message(STATUS "ARCHITECTURE is x86.")
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(THIRD_PARTY_ARCHITECTURE x64)
+  message(STATUS "ARCHITECTURE is x64.")
+endif()
+
+if(MSVC)
+  set(MSVC_ARCH -A ${THIRD_PARTY_ARCHITECTURE})
+endif()
+message(STATUS "MSVC_ARCH is: ${MSVC_ARCH}")
 
 macro(install_external_open_source_headers headers_directory)
   install(DIRECTORY ${headers_directory} DESTINATION external)
@@ -60,19 +68,17 @@ add_custom_command(TARGET unzip_zeromq PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E tar xzf zeromq-4.3.4.zip
     COMMAND ${CMAKE_COMMAND} -E rename zeromq-4.3.4 zeromq
     COMMAND patch -p0 < zeromq-4.3.4@0001.patch --binary
-    COMMAND cd zeromq
-    COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S . -B build -A ${THIRD_PARTY_ARCHITECTURE}
+    COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S zeromq -B zeromq/build ${MSVC_ARCH}
       -DBUILD_STATIC=OFF -DBUILD_SHARED=ON -DBUILD_TESTS=OFF -DZMQ_BUILD_TESTS=OFF
-      -DWITH_LIBSODIUM=OFF -DENABLE_DRAFTS=OFF -Wno-dev
-    COMMAND ${CMAKE_COMMAND} --build build --config Release --parallel
-    COMMAND ${CMAKE_COMMAND} --install build --prefix output --config Release
-    COMMAND cd ..
+      -DWITH_LIBSODIUM=OFF -DENABLE_DRAFTS=OFF -Wno-dev -DCMAKE_INSTALL_LIBDIR=lib
+    COMMAND ${CMAKE_COMMAND} --build zeromq/build --config Release --parallel
+    COMMAND ${CMAKE_COMMAND} --install zeromq/build --prefix zeromq/output --config Release
   VERBATIM)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/zeromq/output/include)
 install_external_open_source_headers(${THIRD_PARTY_EXTERNAL}/zeromq/output/include/)
 
-target_link_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib)
+target_link_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib)
 if(MSVC)
   target_link_libraries(${PROJECT_NAME} PUBLIC libzmq)
 else()
@@ -80,11 +86,20 @@ else()
 endif()
 
 if(WIN32)
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib/libzmq.lib DESTINATION library)
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.dll DESTINATION runtime)
+  install(FILES ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/libzmq.lib DESTINATION library)
+  install(FILES ${THIRD_PARTY_EXTERNAL}/zeromq/output/bin/libzmq.dll DESTINATION runtime)
 else()
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/lib/libzmq.a DESTINATION library)
-  install(FILES ${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/bin/libzmq.so DESTINATION runtime)
+  # https://stackoverflow.com/questions/55451084/why-does-installdirectory-files-matching-pattern-copy-empty-director
+  install(DIRECTORY ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/
+    DESTINATION library FILES_MATCHING REGEX "libzmq.so*")
+  install(DIRECTORY ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/
+    DESTINATION runtime FILES_MATCHING REGEX "libzmq.so*")
+endif()
+
+if(WIN32)
+  set(OUTPUT_ZMQ_DEP_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/CMake)
+else()
+  set(OUTPUT_ZMQ_DEP_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/cmake/ZeroMQ)
 endif()
 
 #==============================================================================
@@ -97,12 +112,10 @@ add_custom_command(TARGET unzip_cppzmq PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove_directory cppzmq
     COMMAND ${CMAKE_COMMAND} -E tar xzf cppzmq-4.9.0.zip
     COMMAND ${CMAKE_COMMAND} -E rename cppzmq-4.9.0 cppzmq
-    COMMAND cd cppzmq
-    COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S . -B build -A ${THIRD_PARTY_ARCHITECTURE}
-      -DCPPZMQ_BUILD_TESTS=OFF -DZeroMQ_DIR=${THIRD_PARTY_EXTERNAL}/ZeroMQ/output/CMake -Wno-dev
-    COMMAND ${CMAKE_COMMAND} --build build --config Release --parallel
-    COMMAND ${CMAKE_COMMAND} --install build --prefix output --config Release
-    COMMAND cd ..
+    COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S cppzmq -B cppzmq/build ${MSVC_ARCH}
+      -DCPPZMQ_BUILD_TESTS=OFF -DZeroMQ_DIR=${OUTPUT_ZMQ_DEP_DIR} -Wno-dev
+    COMMAND ${CMAKE_COMMAND} --build cppzmq/build --config Release --parallel
+    COMMAND ${CMAKE_COMMAND} --install cppzmq/build --prefix cppzmq/output --config Release
   VERBATIM)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_EXTERNAL}/cppzmq/output/include)
@@ -110,7 +123,7 @@ install_external_open_source_headers(${THIRD_PARTY_EXTERNAL}/cppzmq/output/inclu
 
 #==============================================================================
 
-if(WIN32)
+if(MSVC)
   add_custom_target(unzip_patch ALL)
   add_custom_command(TARGET unzip_patch PRE_BUILD
     COMMENT "unpacking patch, extract patch tool in Windows."
@@ -133,16 +146,14 @@ endif()
 add_custom_target(unzip_global_singleton ALL)
 add_custom_command(TARGET unzip_global_singleton PRE_BUILD
   COMMENT "unpacking GlobalSingleton, compile and install it."
-  DEPENDS GlobalSingleton-1.0.zip
+  DEPENDS GlobalSingleton-1.2.zip
   WORKING_DIRECTORY ${THIRD_PARTY_INTERNAL}
     COMMAND ${CMAKE_COMMAND} -E remove_directory gsgt
-    COMMAND ${CMAKE_COMMAND} -E tar xzf GlobalSingleton-1.0.zip
-    COMMAND ${CMAKE_COMMAND} -E rename GlobalSingleton-1.0 gsgt
-    COMMAND cd gsgt
-    COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S . -B build -A ${THIRD_PARTY_ARCHITECTURE}
-    COMMAND ${CMAKE_COMMAND} --build build --config Release --parallel
-    COMMAND ${CMAKE_COMMAND} --install build --prefix output --config Release
-    COMMAND cd ..
+    COMMAND ${CMAKE_COMMAND} -E tar xzf GlobalSingleton-1.2.zip
+    COMMAND ${CMAKE_COMMAND} -E rename GlobalSingleton-1.2 gsgt
+    COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S gsgt -B gsgt/build ${MSVC_ARCH}
+    COMMAND ${CMAKE_COMMAND} --build gsgt/build --config Release --parallel
+    COMMAND ${CMAKE_COMMAND} --install gsgt/build --prefix gsgt/output --config Release
   VERBATIM)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_INTERNAL}/gsgt/output/include)
