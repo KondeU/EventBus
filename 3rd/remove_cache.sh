@@ -8,4 +8,4 @@ rm -rf ${CURRENT_PATH}/external/cereal
 rm -rf ${CURRENT_PATH}/external/msgpack
 rm -rf ${CURRENT_PATH}/external/zeromq
 rm -rf ${CURRENT_PATH}/external/cppzmq
-#rm -rf ${CURRENT_PATH}/internal/gsgt
+rm -rf ${CURRENT_PATH}/internal/gsgt
