@@ -19,7 +19,7 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif()
 
 if(MSVC)
-  set(MSVC_ARCH "-A ${THIRD_PARTY_ARCHITECTURE}")
+  set(MSVC_ARCH -A ${THIRD_PARTY_ARCHITECTURE})
 endif()
 message(STATUS "MSVC_ARCH is: ${MSVC_ARCH}")
 
@@ -149,18 +149,18 @@ endif()
 
 #==============================================================================
 
-#[[add_custom_target(unzip_global_singleton ALL)
+add_custom_target(unzip_global_singleton ALL)
 add_custom_command(TARGET unzip_global_singleton PRE_BUILD
   COMMENT "unpacking GlobalSingleton, compile and install it."
-  DEPENDS GlobalSingleton-1.1.zip
+  DEPENDS GlobalSingleton-1.2.zip
   WORKING_DIRECTORY ${THIRD_PARTY_INTERNAL}
     COMMAND ${CMAKE_COMMAND} -E remove_directory gsgt
-    COMMAND ${CMAKE_COMMAND} -E tar xzf GlobalSingleton-1.1.zip
-    COMMAND ${CMAKE_COMMAND} -E rename GlobalSingleton-1.1 gsgt
+    COMMAND ${CMAKE_COMMAND} -E tar xzf GlobalSingleton-1.2.zip
+    COMMAND ${CMAKE_COMMAND} -E rename GlobalSingleton-1.2 gsgt
     COMMAND ${CMAKE_COMMAND} -G ${CMAKE_GENERATOR} -S gsgt -B gsgt/build ${MSVC_ARCH}
     COMMAND ${CMAKE_COMMAND} --build gsgt/build --config Release --parallel
     COMMAND ${CMAKE_COMMAND} --install gsgt/build --prefix gsgt/output --config Release
-  VERBATIM)]]#
+  VERBATIM)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${THIRD_PARTY_INTERNAL}/gsgt/output/include)
 install(DIRECTORY ${THIRD_PARTY_INTERNAL}/gsgt/output/include/ DESTINATION include/common)
@@ -177,4 +177,4 @@ add_dependencies(${PROJECT_NAME} unzip_cereal)
 add_dependencies(${PROJECT_NAME} unzip_msgpack)
 add_dependencies(${PROJECT_NAME} unzip_cppzmq)
 add_dependencies(unzip_cppzmq unzip_zeromq)
-#add_dependencies(${PROJECT_NAME} unzip_global_singleton)
+add_dependencies(${PROJECT_NAME} unzip_global_singleton)
