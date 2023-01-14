@@ -99,7 +99,7 @@ endif()
 if(WIN32)
   set(OUTPUT_ZMQ_DEP_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/CMake)
 else()
-  set(OUTPUT_ZMQ_DEP_DIR ${OUTPUT_ZMQ_LIB_DIR}/cmake/ZeroMQ)
+  set(OUTPUT_ZMQ_DEP_DIR ${THIRD_PARTY_EXTERNAL}/zeromq/output/lib/cmake/ZeroMQ)
 endif()
 
 #==============================================================================
