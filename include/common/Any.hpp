@@ -82,7 +82,10 @@ private:
     template <typename T>
     class SpecificObject : public AnyObject {
     public:
-        template <typename T>
+        SpecificObject(const T& value) : value(value)
+        {
+        }
+
         SpecificObject(T&& value) : value(std::forward<T>(value))
         {
         }

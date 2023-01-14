@@ -13,7 +13,9 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1
     - name: build EventBus on windows
       shell: bash
-      run: ./build.sh
+      run: |
+        ./build.sh
+        ./sample/build.sh
     - uses: actions/upload-artifact@v3
       with:
         name: EventBus
