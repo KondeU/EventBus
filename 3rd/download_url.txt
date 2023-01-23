@@ -1,0 +1,6 @@
+cereal="https://github.com/USCiLab/cereal/releases"
+msgpack="https://github.com/msgpack/msgpack-c/releases"
+zeromq="https://github.com/zeromq/libzmq/releases"
+cppzmq="https://github.com/zeromq/cppzmq/releases"
+diffutils="http://gnuwin32.sourceforge.net/packages/diffutils.htm"
+patch="http://gnuwin32.sourceforge.net/packages/patch.htm"
